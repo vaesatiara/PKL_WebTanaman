@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alamat Tersimpan - Toko Tanaman</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="images/logo.png" alt="Toko Tanaman">
+                </a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">BERANDA</a></li>
+                    <li><a href="produk.html">PRODUK</a></li>
+                    <li><a href="kontak.html">KONTAK</a></li>
+                    <li><a href="tentang_kami.html">TENTANG KAMI</a></li>
+                </ul>
+            </nav>
+            <div class="icons">
+                <a href="keranjang.html"><i class="fas fa-shopping-cart"></i></a>
+                <a href="profil.html" class="active"><i class="fas fa-user"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="profile-section">
+        <div class="container">
+            <div class="profile-container">
+                <div class="profile-sidebar">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="images/user.jpg" alt="Caselline">
+                        </div>
+                        <div class="profile-info">
+                            <h2>Caselline</h2>
+                            <p>caselline11@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="profile-nav">
+                        <ul>
+                            <li>
+                                <a href="profil.html">
+                                    <i class="fas fa-user"></i> Profil Saya
+                                </a>
+                            </li>
+                            <li>
+                                <a href="riwayat_pesanan.html">
+                                    <i class="fas fa-shopping-bag"></i> Riwayat Pesanan
+                                </a>
+                            </li>
+                            <li class="active">
+                                <a href="alamat_tersimpan.html">
+                                    <i class="fas fa-map-marker-alt"></i> Alamat Tersimpan
+                                </a>
+                            </li>
+                            <li>
+                                <a href="ubah_password.html">
+                                    <i class="fas fa-lock"></i> Ubah Password
+                                </a>
+                            </li>
+                            <li>
+                                <a href="login.html" class="logout">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="profile-content">
+                    <div class="content-header">
+                        <h1>Alamat Tersimpan</h1>
+                        <button class="btn btn-primary" id="addAddressBtn">
+                            <i class="fas fa-plus"></i> Tambah Alamat Baru
+                        </button>
+                    </div>
+                    
+                    <div class="address-list">
+                        <div class="address-card">
+                            <div class="address-badge">Utama</div>
+                            <h3>Rumah</h3>
+                            <p class="address-name">Caselline</p>
+                            <p class="address-phone">0812-3456-7890</p>
+                            <p class="address-detail">Jl. Tanaman Indah No. 123, Kecamatan Maju Jaya, Purwokerto, 12345</p>
+                            <div class="address-actions">
+                                <a href="#" class="btn btn-outline btn-sm">
+                                    <i class="fas fa-edit"></i> Ubah
+                                </a>
+                                <a href="#" class="btn btn-outline btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="address-card">
+                            <h3>Kantor</h3>
+                            <p class="address-name">caselline</p>
+                            <p class="address-phone">0812-3456-7890</p>
+                            <p class="address-detail">Jl. Bisnis Raya No. 45, Kecamatan Sukses, Purbalingga, 10110</p>
+                            <div class="address-actions">
+                                <a href="#" class="btn btn-outline btn-sm">
+                                    <i class="fas fa-edit"></i> Ubah
+                                </a>
+                                <a href="#" class="btn btn-outline btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </a>
+                                <button class="btn btn-outline btn-sm set-primary-btn">
+                                    <i class="fas fa-check-circle"></i> Jadikan Alamat Utama
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="address-form-container" id="addressFormContainer">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Tambah Alamat Baru</h2>
+                <button class="close-btn" id="closeFormBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addressForm">
+                <div class="form-group">
+                    <label for="addressLabel" class="form-label">Label Alamat</label>
+                    <input type="text" id="addressLabel" class="form-control" placeholder="Rumah, Kantor, dll">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="recipientName" class="form-label">Nama Penerima</label>
+                        <input type="text" id="recipientName" class="form-control" placeholder="Nama lengkap penerima">
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNumber" class="form-label">Nomor Telepon</label>
+                        <input type="text" id="phoneNumber" class="form-control" placeholder="Nomor telepon penerima">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="province" class="form-label">Provinsi</label>
+                        <select id="province" class="form-control">
+                            <option value="">Pilih Provinsi</option>
+                            <option value="dki">DKI Jakarta</option>
+                            <option value="jabar">Jawa Barat</option>
+                            <option value="jateng">Jawa Tengah</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="city" class="form-label">Kota/Kabupaten</label>
+                        <select id="city" class="form-control">
+                            <option value="">Pilih Kota/Kabupaten</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="district" class="form-label">Kecamatan</label>
+                    <select id="district" class="form-control">
+                        <option value="">Pilih Kecamatan</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="postalCode" class="form-label">Kode Pos</label>
+                    <input type="text" id="postalCode" class="form-control" placeholder="Kode pos">
+                </div>
+                <div class="form-group">
+                    <label for="fullAddress" class="form-label">Alamat Lengkap</label>
+                    <textarea id="fullAddress" class="form-control" rows="3" placeholder="Nama jalan, nomor rumah, RT/RW, dll"></textarea>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="setAsPrimary" class="form-check-input">
+                    <label for="setAsPrimary" class="form-check-label">Jadikan sebagai alamat utama</label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelBtn">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+
+        <section class="feedback">
+            <div class="container">
+                <h2>Kirim kritik/saran untuk kami</h2>
+                <p>Ceritakan kepada kami kritik dan/atau saran Anda</p>
+                
+                <div class="feedback-form">
+                    <input type="text" placeholder="Masukkan kritik/saran">
+                    <button type="submit">KIRIM</button>
+                </div>
+            </div>
+        </section>
+         <br>
+         <br>
+         <br>
+         <br>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="images/logo.png" alt="Toko Tanaman">
+                    <p>Toko tanaman hias terpercaya dengan berbagai koleksi tanaman berkualitas untuk mempercantik rumah dan ruangan Anda.</p>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-title">Tautan Cepat</h3>
+                    <ul>
+                        <li><a href="index.html">BERANDA</a></li>
+                        <li><a href="produk.html">PRODUK</a></li>
+                        <li><a href="kontak.html">KONTAK</a></li>
+                        <li><a href="tentang_kami.html">TENTANG KAMI</a></li>
+                        
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-title">Kategori</h3>
+                    <ul>
+                        <li><a href="#">Tanaman Hias Daun</a></li>
+                        <li><a href="#">Tanaman Hias Bunga</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3 class="footer-title">Kontak Kami</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Jl. Tanaman Indah No. 123, Purwokerto</p>
+                    <p><i class="fas fa-phone"></i> +62 812 3456 7890</p>
+                    <p><i class="fas fa-envelope"></i> info@tokotanaman.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Toko Tanaman. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

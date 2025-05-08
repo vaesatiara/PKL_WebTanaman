@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metode Pembayaran - Toko Tanaman</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="images/logo.png" alt="Toko Tanaman">
+                </a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">BERANDA</a></li>
+                    <li><a href="produk.html">PRODUK</a></li>
+                    <li><a href="kontak.html">KONTAK</a></li>
+                    <li><a href="tentang_kami.html">TENTANG KAMI</a></li>
+                </ul>
+            </nav>
+            <div class="icons">
+                <a href="keranjang.html"><i class="fas fa-shopping-cart"></i></a>
+                <a href="profil.html"><i class="fas fa-user"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="checkout-section">
+        <div class="container">
+            <div class="checkout-steps">
+                <div class="step completed">
+                    <div class="step-number"><i class="fas fa-check"></i></div>
+                    <div class="step-label">Alamat</div>
+                </div>
+                <div class="step completed">
+                    <div class="step-number"><i class="fas fa-check"></i></div>
+                    <div class="step-label">Pengiriman</div>
+                </div>
+                <div class="step active">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Pembayaran</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Konfirmasi</div>
+                </div>
+            </div>
+            
+            <div class="checkout-content">
+                <div class="checkout-form">
+                    <h2>Metode Pembayaran</h2>
+                    
+                    <div class="payment-section">
+                        <h3>Pilih Metode Pembayaran</h3>
+                        
+                        <div class="payment-group">
+                            <h4 class="payment-group-title">Transfer Bank</h4>
+                            
+                            <div class="payment-options">
+                                <div class="payment-option selected">
+                                    <input type="radio" name="payment" id="bca" checked>
+                                    <label for="bca" class="payment-label">
+                                        <div class="payment-logo">
+                                            <img src="images/bca.jpg" alt="Bank BCA">
+                                        </div>
+                                        <div class="payment-info">
+                                            <h4>Bank BCA</h4>
+                                            <p>Pembayaran melalui transfer bank BCA</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-option">
+                                    <input type="radio" name="payment" id="mandiri">
+                                    <label for="mandiri" class="payment-label">
+                                        <div class="payment-logo">
+                                            <img src="images/mandiri (1).jpg" alt="Bank Mandiri">
+                                        </div>
+                                        <div class="payment-info">
+                                            <h4>Bank Mandiri</h4>
+                                            <p>Pembayaran melalui transfer bank Mandiri</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-option">
+                                    <input type="radio" name="payment" id="bni">
+                                    <label for="bni" class="payment-label">
+                                        <div class="payment-logo">
+                                            <img src="images/bni.jpg" alt="Bank BNI">
+                                        </div>
+                                        <div class="payment-info">
+                                            <h4>Bank BNI</h4>
+                                            <p>Pembayaran melalui transfer bank BNI</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-group">
+                            <h4 class="payment-group-title">E-Wallet</h4>
+                            
+                            <div class="payment-options">
+                                <div class="payment-option">
+                                    <input type="radio" name="payment" id="dana">
+                                    <label for="dana" class="payment-label">
+                                        <div class="payment-logo">
+                                            <img src="images/dana.jpg" alt="DANA">
+                                        </div>
+                                        <div class="payment-info">
+                                            <h4>DANA</h4>
+                                            <p>Pembayaran melalui DANA</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-option">
+                                    <input type="radio" name="payment" id="shopeepay">
+                                    <label for="shopeepay" class="payment-label">
+                                        <div class="payment-logo">
+                                            <img src="images/sp.jpg" alt="ShopeePay">
+                                        </div>
+                                        <div class="payment-info">
+                                            <h4>ShopeePay</h4>
+                                            <p>Pembayaran melalui ShopeePay</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-group">
+                            <h4 class="payment-group-title">QRIS</h4>
+                            
+                            <div class="payment-options">
+                                <div class="payment-option">
+                                    <input type="radio" name="payment" id="qris">
+                                    <label for="qris" class="payment-label">
+                                        <div class="payment-logo">
+                                            <img src="images/qris.jpg" alt="QRIS">
+                                        </div>
+                                        <div class="payment-info">
+                                            <h4>QRIS</h4>
+                                            <p>Pembayaran melalui scan QRIS</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-summary">
+                    <h2 class="summary-title">Ringkasan Pesanan</h2>
+                    
+                    <div class="summary-items">
+                        <div class="summary-item">
+                            <img src="images/daun3 (1).jpg" alt="Monstera" class="item-image">
+                            <div class="item-info">
+                                <h3>Monstera</h3>
+                                <p>1 x Rp195.000</p>
+                            </div>
+                            <div class="item-price">Rp195.000</div>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <img src="images/bunga3.jpg" alt="Calathea Orbifolia" class="item-image">
+                            <div class="item-info">
+                                <h3>Calathea Orbifolia</h3>
+                                <p>2 x Rp175.000</p>
+                            </div>
+                            <div class="item-price">Rp350.000</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>Rp545.000</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>Pengiriman (JNE Regular)</span>
+                        <span>Rp25.000</span>
+                    </div>
+                    
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>Rp570.000</span>
+                    </div>
+                    
+                    <a href="struk.html" class="checkout-btn">Buat Pesanan</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="images/logo.png" alt="Toko Tanaman">
+                    <p>Toko tanaman hias terpercaya dengan berbagai koleksi tanaman berkualitas untuk mempercantik rumah dan ruangan Anda.</p>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-title">Tautan Cepat</h3>
+                    <ul>
+                        <li><a href="index.html">BERANDA</a></li>
+                        <li><a href="produk.html">PRODUK</a></li>
+                        <li><a href="kontak.html">KONTAK</a></li>
+                        <li><a href="tentang.html">TENTANG KAMI</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-title">Kategori</h3>
+                    <ul>
+                        <li><a href="#">Tanaman Hias Daun</a></li>
+                        <li><a href="#">Tanaman Hias Bunga</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3 class="footer-title">Kontak Kami</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Jl. Tanaman Indah No. 123, Purwokerto</p>
+                    <p><i class="fas fa-phone"></i> +62 812 3456 7890</p>
+                    <p><i class="fas fa-envelope"></i> info@tokotanaman.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Toko Tanaman. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
