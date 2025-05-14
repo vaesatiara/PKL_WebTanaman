@@ -270,3 +270,8 @@ include "koneksi.php";
 
 </body>
 </html>
+<<<<<<< HEAD
+=======
+
+<p>halloo</p>
+>>>>>>> 512b55a145e76e2539049b069df012030987bfc1
