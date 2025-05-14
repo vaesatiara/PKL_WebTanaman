@@ -127,7 +127,7 @@ if (isset($_GET['hapus'])) {
         </form>
     <?php endif; ?>
     
-    <p><a href="index.php">Lanjut Belanja</a></p>
+    <p><a href="index.php">=apapap</a></p>
     
     <script>
         function updateQuantity(id_produk, change) {
