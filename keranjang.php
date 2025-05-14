@@ -1,3 +1,9 @@
+<?php
+session_start();
+include "koneksi.php";
+
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -6,6 +12,7 @@
     <title>Keranjang Belanja - Toko Tanaman</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -24,8 +31,8 @@
                 </ul>
             </nav>
             <div class="icons">
-                <a href="keranjang.html" class="active"><i class="fas fa-shopping-cart"></i></a>
-                <a href=""><i class="fas fa-user"></i></a>
+                <a href="keranjang.php" class="active"><i class="fas fa-shopping-cart"></i></a>
+                <a href="profil.html"><i class="fas fa-user"></i></a>
             </div>
         </div>
     </header>
@@ -39,35 +46,58 @@
                 <div class="cart-items">
                     <div class="cart-header">
                         <div class="header-product">Produk</div>
+                        <div class="header-name">Nama</div>
                         <div class="header-price">Harga</div>
                         <div class="header-quantity">Jumlah</div>
                         <div class="header-subtotal">Subtotal</div>
                         <div class="header-remove"></div>
                     </div>
+                    <?php
+                    foreach ($_SESSION['keranjang'] ?? [] as $id_produk => $jumlah):
 
-                    <form action="prosesT_keranjang.php" method="post">
-                    <div class="cart-item">
+                    $ambil=$koneksi ->query("SELECT * FROM produk WHERE id_produk='$id_produk' ");
+                    $pecah= $ambil ->fetch_assoc();
+                    $subtotal = $pecah['harga']*$jumlah;
+                    ?>
+                    <div style="margin-bottom: 10px;">
+                    <tr>
+                        <div class="cart-item">
                         <div class="product-info">
-                            
+                           <td><img src= "uploads/<?php echo $pecah['foto']; ?>"style="max-width:150px; height:100px;" class="product-image"></td>
                             <div class="product-details">
                                 <h3><?=$produk['nama_tanaman']?></h3>
                                 <p class="size">Ukuran: Sedang</p>
                             </div>
-                        </div>
+                    </div>
                         <div class="item-price">Rp 150.000</div>
                         <div class="item-quantity">
                             <div class="quantity-control">
-                                <button class="quantity-btn minus">-</button>
-                                <input type="text" class="quantity-input" value="1" readonly>
-                                <button class="quantity-btn plus">+</button>
+                                <button type="button" onclick="ubahJumlah(-1)">-</button>
+                                <input type="text" id_produk="" name="jumlah" value="<?php echo $jumlah; ?>" readonly>
+                                 <button type="button" onclick="ubahJumlah(1)">+</button>
                             </div>
-                        </div>
-                        <div class="item-subtotal">Rp 150.000</div>
+                            <script>
+        function ubahJumlah(delta) {
+         let input = document.getElementById('jumlah');
+         let val = parseInt(input.value) || 0;
+        val = val + delta;1
+            if (val < 1) val = 1;
+            input.value = val;
+}
+</script>
+                    </div>
+                         <div class="item-subtotal"><td><?php echo number_format($subtotal)?></td></div>
                         <div class="item-remove">
-                            <button class="remove-btn"><i class="fas fa-trash"></i></button>
+                            <a href="hapusK.php?id_produk=<?php echo $pecah['id_produk']?>" class="btn-delete">
+                                    <i class="fas fa-trash"></i></a>
                         </div>
                     </div>
-                    </form>
+                        
+                        
+                    </tr>
+                    </div>
+                    <?php endforeach  ?>
+    
                     
                     <div class="cart-item">
                         <div class="product-info">

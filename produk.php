@@ -103,7 +103,7 @@ $query=mysqli_query($koneksi,$sql);
     <div class="product-image">
     <img id="main-product-image" src="uploads/<?=$produk['foto']?>"alt="<?= $produk['foto'] ?>">
             <div class="product-actions">
-                <a href="keranjang.php" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
+                <a href="keranjang.php?id_produk=<?=$produk['id_produk']?>" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
                 <a href="detail_produk.php" class="action-btn"><i class="fas fa-eye"></i></a>
                         </div></div>
                    
