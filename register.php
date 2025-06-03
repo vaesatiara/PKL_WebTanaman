@@ -34,6 +34,7 @@
 
     <!-- Main Content -->
     <main>
+         <form action="proses_register.php" method="post">
         <div class="auth-container">
             <div class="auth-left">
                 <div class="auth-image-container">
@@ -44,14 +45,14 @@
             <div class="auth-right">
                 <div class="auth-form-container">
                     <h2>Daftar Akun</h2>
-                    <p class="auth-subtitle">Sudah punya akun? <a href="login.html">Masuk di sini</a></p>
+                    <p class="auth-subtitle">Sudah punya akun? <a href="login.php">Masuk di sini</a></p>
                     
-                    <form class="auth-form">
+                   
                         <div class="form-group">
                             <label for="email">Email</label>
                             <div class="input-with-icon">
                                 <i class="fas fa-envelope"></i>
-                                <input type="email" id="email" placeholder="Masukkan email Anda">
+                                <input type="email" name="email" id_pelanggan="" placeholder="Masukkan email Anda">
                             </div>
                         </div>
                         
@@ -59,7 +60,7 @@
                             <label for="username">Username</label>
                             <div class="input-with-icon">
                                 <i class="fas fa-user"></i>
-                                <input type="text" id="username" placeholder="Buat username Anda">
+                                <input type="text" name="username" id_pelanggan="" placeholder="Buat username Anda">
                             </div>
                         </div>
                         
@@ -67,19 +68,19 @@
                             <label for="password">Password</label>
                             <div class="input-with-icon">
                                 <i class="fas fa-lock"></i>
-                                <input type="password" id="password" placeholder="Buat password Anda">
+                                <input type="password" name="password" id_pelanggan="" placeholder="Buat password Anda">
                                 <i class="fas fa-eye toggle-password"></i>
                             </div>
                         </div>
                         
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="confirm-password">Konfirmasi Password</label>
                             <div class="input-with-icon">
                                 <i class="fas fa-lock"></i>
                                 <input type="password" id="confirm-password" placeholder="Konfirmasi password Anda">
                                 <i class="fas fa-eye toggle-password"></i>
                             </div>
-                        </div>
+                        </div> -->
                         
                         <div class="terms-agreement">
                             <label class="custom-checkbox">
@@ -90,10 +91,11 @@
                         </div>
                         
                         <button type="submit" class="btn-submit">Daftar</button>
-                    </form>
+                    
                 </div>
             </div>
         </div>
+</form>
     </main>
 
     <!-- Footer -->

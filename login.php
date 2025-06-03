@@ -31,8 +31,9 @@
         </div>
     </header>
 
-    <!-- Main Content -->
+      
     <main>
+         <form action="proses_login.php" method="post">
         <div class="auth-container">
             <div class="auth-left">
                 <div class="auth-image-container">
@@ -44,13 +45,13 @@
                 <div class="auth-form-container">
                     <h2>Masuk</h2>
                     <p class="auth-subtitle">Belum punya akun? <a href="register.html">Daftar sekarang</a></p>
-                    
-                    <form class="auth-form">
+                   
+                 
                         <div class="form-group">
-                            <label for="username">Username</label>
+                            <label for="">Username</label>
                             <div class="input-with-icon">
                                 <i class="fas fa-user"></i>
-                                <input type="text" id="username" placeholder="Masukkan username Anda">
+                                <input type="text" name="username" id_pelanggan="" placeholder="Masukkan username Anda">
                             </div>
                         </div>
                         
@@ -58,26 +59,29 @@
                             <label for="password">Password</label>
                             <div class="input-with-icon">
                                 <i class="fas fa-lock"></i>
-                                <input type="password" id="password" placeholder="Masukkan password Anda">
+                                <input type="password" name="password" id_pelanggan="" placeholder="Masukkan password Anda">
                                 <i class="fas fa-eye toggle-password"></i>
                             </div>
                         </div>
                         
-                        <div class="form-options">
+                        <!-- <div class="form-options">
                             <label class="custom-checkbox">
                                 <input type="checkbox" id="remember">
                                 <span class="checkmark"></span>
                                 Ingat saya
                             </label>
                             <a href="#" class="forgot-password">Lupa password?</a>
-                        </div>
+                        </div> -->
                         
                         <button type="submit" class="btn-submit">Masuk</button>
-                    </form>
+                    
                 </div>
             </div>
         </div>
+         </form>
     </main>
+   
+
 
     <!-- Footer -->
     <footer>

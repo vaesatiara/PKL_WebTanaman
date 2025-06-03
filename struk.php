@@ -93,7 +93,7 @@
                     
                     <p class="payment-note">Catatan: Mohon transfer tepat hingga 3 digit terakhir untuk memudahkan verifikasi.</p>
                     
-                    <a href="konfirmasi_pembayaran.html" class="btn btn-primary">Konfirmasi Pembayaran</a>
+                    <a href="konfirmasi_pembayaran.php" class="btn btn-primary">Konfirmasi Pembayaran</a>
                 </div>
                 
                 <div class="shipping-info">

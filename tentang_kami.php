@@ -1,3 +1,7 @@
+<?php
+session_start();
+include "koneksi.php";
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -12,27 +16,32 @@
     <header>
         <div class="container">
             <div class="logo">
-                <a href="index.html">
+                <a href="index.php">
                     <img src="images/logo.png" alt="The Secret Garden">
                 </a>
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html">BERANDA</a></li>
-                    <li><a href="produk.html">PRODUK</a></li>
-                    <li><a href="kontak.html">KONTAK</a></li>
-                    <li><a href="tentang_kami.html" class="active">TENTANG KAMI</a></li>
+                    <li><a href="index.php">BERANDA</a></li>
+                    <li><a href="produk.php">PRODUK</a></li>
+                    <li><a href="kontak.php">KONTAK</a></li>
+                    <li><a href="tentang_kami.php" class="active">TENTANG KAMI</a></li>
                     
                 </ul>
             </nav>
             <div class="icons">
-                <a href="#"><i class="fas fa-shopping-cart"></i></a>
-                <a href="#"><i class="fas fa-user"></i></a>
+                <a href="keranjang.php"><i class="fas fa-shopping-cart"></i></a>
+                <?php if (isset($_SESSION['username'])): ?>
+                <a href="profil.php"><i class="fas fa-user"></i></a>
+                <a href="logout.php"> <i class="fas fa-sign-out-alt"></i> Logout</a>
+                <?php else: ?>
+                  <a href="login.php">Login</a>
+                <?php endif; ?>
             </div>
         </div>
     </header>
 
-    <!-- Breadcrumb -->
+  
     <div class="breadcrumb">
         <div class="container">
             <ul>
@@ -143,17 +152,18 @@
                 <div class="footer-links">
                     <h3>Tautan Cepat</h3>
                     <ul>
-                        <li><a href="index.html">BERANDA</a></li>
-                        <li><a href="produk.html">PRODUK</a></li>
-                        <li><a href="kontak.html">KONTAK</a></li>
+                        <li><a href="index.php">BERANDA</a></li>
+                        <li><a href="produk.php">PRODUK</a></li>
+                        <li><a href="kontak.php">KONTAK</a></li>
+                        <li><a href="tentang_kami.php">TENTANG KAMI</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-category">
                     <h3>Kategori</h3>
                     <ul>
-                        <li><a href="tanaman-hias-bunga.html">Tanaman Hias Bunga</a></li>
-                        <li><a href="tanaman-hias-daun.html">Tanaman Hias Daun</a></li>
+                        <li><a href="tanaman_hias_daun.php">Tanaman Hias Daun</a></li>
+                        <li><a href="tanaman_hias_bunga.php">Tanaman Hias Bunga</a></li>
                     </ul>
                 </div>
                 

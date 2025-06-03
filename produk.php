@@ -1,6 +1,11 @@
 <?php
-include "koneksi.php"; ?>
-<?php
+session_start();
+include "koneksi.php";
+
+// if (!isset($_SESSION['username'])){
+//     header("Location:login.php?login dulu");
+//     exit;
+// }
 
 $sql="SELECT * FROM produk ORDER BY id_produk DESC";
 $query=mysqli_query($koneksi,$sql);
@@ -15,7 +20,7 @@ $query=mysqli_query($koneksi,$sql);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Header -->
+    
     <header>
         <div class="container">
             <div class="logo">
@@ -25,15 +30,20 @@ $query=mysqli_query($koneksi,$sql);
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html">BERANDA</a></li>
-                    <li><a href="produk.html" class="active">PRODUK</a></li>
-                    <li><a href="kontak.html">KONTAK</a></li>
-                    <li><a href="tentang_kami.html">TENTANG KAMI</a></li>
+                    <li><a href="index.php">BERANDA</a></li>
+                    <li><a href="produk.php" class="active">PRODUK</a></li>
+                    <li><a href="kontak.php">KONTAK</a></li>
+                    <li><a href="tentang_kami.php">TENTANG KAMI</a></li>
                 </ul>
             </nav>
             <div class="icons">
-                <a href="keranjang.html"><i class="fas fa-shopping-cart"></i></a>
-                <a href=""><i class="fas fa-user"></i></a>
+                <a href="keranjang.php"><i class="fas fa-shopping-cart"></i></a>
+                <?php if (isset($_SESSION['username'])): ?>
+        <a href="profil.php"><i class="fas fa-user"></i></a>
+        <a href="logout.php"> <i class="fas fa-sign-out-alt"></i> Logout</a>
+    <?php else: ?>
+        <a href="login.php">Login</a>
+    <?php endif; ?>
             </div>
         </div>
     </header>
@@ -42,7 +52,7 @@ $query=mysqli_query($koneksi,$sql);
     <div class="breadcrumb">
         <div class="container">
             <ul>
-                <li><a href="index.html">Beranda</a></li>
+                <li><a href="index.php">Beranda</a></li>
                 <li>Produk</li>
             </ul>
         </div>
@@ -63,7 +73,7 @@ $query=mysqli_query($koneksi,$sql);
         <div class="container">
             <h2 class="section-title">Kategori Tanaman</h2>
             <div class="category-cards">
-                <a href="tanaman_hias_daun.html" class="category-card">
+                <a href="tanaman_hias_daun.php" class="category-card">
                     <div class="category-image">
                         <img src="images/daun1.jpg" alt="Tanaman Hias Daun">
                         <div class="category-overlay">
@@ -76,7 +86,7 @@ $query=mysqli_query($koneksi,$sql);
                     </div>
                 </a>
                 
-                <a href="tanaman_hias_bunga.html" class="category-card">
+                <a href="tanaman_hias_bunga.php" class="category-card">
                     <div class="category-image">
                         <img src="images/tulip.jpg" alt="Tanaman Hias Bunga">
                         <div class="category-overlay">
@@ -103,7 +113,15 @@ $query=mysqli_query($koneksi,$sql);
     <div class="product-image">
     <img id="main-product-image" src="uploads/<?=$produk['foto']?>"alt="<?= $produk['foto'] ?>">
             <div class="product-actions">
-                <a href="keranjang.php?id_produk=<?=$produk['id_produk']?>" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
+                  <?php if (isset($_SESSION['username'])): ?>
+        <a href="keranjang.php?id_produk=<?php echo $produk['id_produk']; ?>" class="action-btn">
+            <i class="fas fa-shopping-cart"></i>  
+        </a>
+        <?php else: ?>
+        <a href="login.php" onclick="alert('Silakan login terlebih dahulu untuk menambahkan ke keranjang.');" class="action-btn">
+            <i class="fas fa-shopping-cart"></i>
+        </a>
+         <?php endif; ?>
                 <a href="detail_produk.php" class="action-btn"><i class="fas fa-eye"></i></a>
                         </div></div>
                    
@@ -123,19 +141,10 @@ $query=mysqli_query($koneksi,$sql);
                         </div>
                     </div>
     </div>
-    </div>
-    </div>
-    </selection>
-                    <?php endwhile ?>
-        
-
-
-
-    <!-- Products Section -->
-    <section class="products-section">
-        <div class="container">
-            <div class="products-grid">
-                <!-- Tanaman Hias Daun -->
+    
+    
+    
+                   
                 <div class="product-card" data-category="daun">
                     <div class="product-badge">Terlaris</div>
                     <div class="product-image">
@@ -442,7 +451,7 @@ $query=mysqli_query($koneksi,$sql);
                         </div>
                     </div>
                 </div>
-            </div>
+            
 
             <div class="product-card" data-category="bunga">
                 <div class="product-image">
@@ -596,7 +605,12 @@ $query=mysqli_query($koneksi,$sql);
                         </div>
                     </div>
                 </div>
-
+                </div>
+    </div>
+    </div>
+         
+    </selection>
+<?php endwhile ?>
 
     <section class="newsletter">
         <div class="container">
@@ -609,6 +623,7 @@ $query=mysqli_query($koneksi,$sql);
                 </form>
             </div>
         </div>
+        
     </section>
 
     <footer>
@@ -628,17 +643,17 @@ $query=mysqli_query($koneksi,$sql);
                 <div class="footer-links">
                     <h3>Tautan Cepat</h3>
                     <ul>
-                        <li><a href="index.html">BERANDA</a></li>
-                        <li><a href="produk.html">PRODUK</a></li>
-                        <li><a href="kontak.html">KONTAK</a></li>
+                        <li><a href="index.php">BERANDA</a></li>
+                        <li><a href="produk.php">PRODUK</a></li>
+                        <li><a href="kontak.php">KONTAK</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-links">
                     <h3>Kategori</h3>
                     <ul>
-                        <li><a href="produk.html?category=bunga">Tanaman Hias Bunga</a></li>
-                        <li><a href="produk.html?category=daun">Tanaman Hias Daun</a></li>
+                        <li><a href="tanaman_hias_bunga.php?category=bunga">Tanaman Hias Bunga</a></li>
+                        <li><a href="tanaman_hias_daun.php?category=daun">Tanaman Hias Daun</a></li>
                     </ul>
                 </div>
                 

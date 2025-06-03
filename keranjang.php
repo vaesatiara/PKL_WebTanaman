@@ -2,6 +2,25 @@
 session_start();
 include "koneksi.php";
 
+// Handle adding product to cart if ID is provided in URL
+if(isset($_GET['id_produk'])) {
+    $id_produk = $_GET['id_produk'];
+    
+    // If product doesn't exist in cart, initialize it
+    if(!isset($_SESSION['keranjang'][$id_produk])) {
+        $_SESSION['keranjang'][$id_produk] = 1;
+    } else {
+        // If product exists, increment quantity
+        $_SESSION['keranjang'][$id_produk] += 1;
+    }
+    
+    // Remove empty entries if any
+    unset($_SESSION['keranjang']['']);
+    
+    // Redirect back to cart page to prevent duplicate additions on refresh
+    header("Location: keranjang.php");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -31,7 +50,25 @@ include "koneksi.php";
                 </ul>
             </nav>
             <div class="icons">
-                <a href="keranjang.php" class="active"><i class="fas fa-shopping-cart"></i></a>
+                <a href="keranjang.php" class="cart-icon active">
+                    <i class="fas fa-shopping-cart"></i>
+                    <?php
+                    // Count total items in cart
+                    $totalItems = 0;
+                    if(isset($_SESSION['keranjang']) && !empty($_SESSION['keranjang'])) {
+                        foreach($_SESSION['keranjang'] as $id => $qty) {
+                            if(!empty($id)) {
+                                $totalItems += $qty;
+                            }
+                        }
+                    }
+                    
+                    // Only show badge if there are items
+                    if($totalItems > 0) {
+                        echo '<span class="cart-badge">' . $totalItems . '</span>';
+                    }
+                    ?>
+                </a>
                 <a href="profil.html"><i class="fas fa-user"></i></a>
             </div>
         </div>
@@ -52,140 +89,79 @@ include "koneksi.php";
                         <div class="header-subtotal">Subtotal</div>
                         <div class="header-remove"></div>
                     </div>
+                    
                     <?php
-                    foreach ($_SESSION['keranjang'] ?? [] as $id_produk => $jumlah):
-
-                    $ambil=$koneksi ->query("SELECT * FROM produk WHERE id_produk='$id_produk' ");
-                    $pecah= $ambil ->fetch_assoc();
-                    $subtotal = $pecah['harga']*$jumlah;
+                    // Initialize total
+                    $totalHarga = 0;
+                    
+                    // Check if cart exists and is not empty
+                    if(isset($_SESSION['keranjang']) && !empty($_SESSION['keranjang'])) {
+                        foreach ($_SESSION['keranjang'] as $id_produk => $jumlah) {
+                            // Skip empty product IDs
+                            if(empty($id_produk)) continue;
+                            
+                            $ambil = $koneksi->query("SELECT * FROM produk WHERE id_produk='$id_produk'");
+                            $pecah = $ambil->fetch_assoc();
+                            
+                            // Calculate subtotal for this item
+                            $subtotal = $pecah['harga'] * $jumlah;
+                            $totalHarga += $subtotal;
                     ?>
-                    <div style="margin-bottom: 10px;">
-                    <tr>
-                        <div class="cart-item">
-                        <div class="product-info">
-                           <td><img src= "uploads/<?php echo $pecah['foto']; ?>"style="max-width:150px; height:100px;" class="product-image"></td>
-                            <div class="product-details">
-                                <h3><?=$produk['nama_tanaman']?></h3>
-                                <p class="size">Ukuran: Sedang</p>
-                            </div>
-                    </div>
-                        <div class="item-price">Rp 150.000</div>
-                        <div class="item-quantity">
-                            <div class="quantity-control">
-                                <button type="button" onclick="ubahJumlah(-1)">-</button>
-                                <input type="text" id_produk="" name="jumlah" value="<?php echo $jumlah; ?>" readonly>
-                                 <button type="button" onclick="ubahJumlah(1)">+</button>
-                            </div>
-                            <script>
-        function ubahJumlah(delta) {
-         let input = document.getElementById('jumlah');
-         let val = parseInt(input.value) || 0;
-        val = val + delta;1
-            if (val < 1) val = 1;
-            input.value = val;
-}
-</script>
-                    </div>
-                         <div class="item-subtotal"><td><?php echo number_format($subtotal)?></td></div>
-                        <div class="item-remove">
-                            <a href="hapusK.php?id_produk=<?php echo $pecah['id_produk']?>" class="btn-delete">
-                                    <i class="fas fa-trash"></i></a>
-                        </div>
-                    </div>
-                        
-                        
-                    </tr>
-                    </div>
-                    <?php endforeach  ?>
-    
-                    
                     <div class="cart-item">
                         <div class="product-info">
-                            <img src="images/Anyelir mini.jpg" alt="Anyelir Mini" class="product-image">
+                            <img src="uploads/<?php echo $pecah['foto']; ?>" class="product-image" alt="<?php echo $pecah['nama_tanaman']; ?>">
                             <div class="product-details">
-                                <h3>Anyelir Mini</h3>
+                                <h3><?php echo $pecah['nama_tanaman']; ?></h3>
                                 <p class="size">Ukuran: Sedang</p>
-                            </div>
-                        </div>
-                        <div class="item-price">Rp 150.000</div>
-                        <div class="item-quantity">
-                            <div class="quantity-control">
-                                <button class="quantity-btn minus">-</button>
-                                <input type="text" class="quantity-input" value="1" readonly>
-                                <button class="quantity-btn plus">+</button>
-                            </div>
-                        </div>
-                        <div class="item-subtotal">Rp 150.000</div>
-                        <div class="item-remove">
-                            <button class="remove-btn"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="cart-item">
-                        <div class="product-info">
-                            <img src="images/monstera.jpg" alt="Monstera" class="product-image">
-                            <div class="product-details">
-                                <h3>Monstera</h3>
-                                <p class="size">Ukuran: Kecil</p>
-                            </div>
-                        </div>
-                        <div class="item-price">Rp 250.000</div>
-                        <div class="item-quantity">
-                            <div class="quantity-control">
-                                <button class="quantity-btn minus">-</button>
-                                <input type="text" class="quantity-input" value="1" readonly>
-                                <button class="quantity-btn plus">+</button>
-                            </div>
-                        </div>
-                        <div class="item-subtotal">Rp 250.000</div>
-                        <div class="item-remove">
-                            <button class="remove-btn"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="cart-item">
-                        <div class="product-info">
-                            <img src="images/oxalis.jpg" alt="Oxalis Triangularis" class="product-image">
-                            <div class="product-details">
-                                <h3>Oxalis Triangularis</h3>
-                                <p class="size">Ukuran: Sedang</p>
+                                <a href="checkout_item.php?id_produk=<?php echo $id_produk; ?>" class="checkout-item-btn">
+                                    <i class="fas fa-shopping-bag"></i> Checkout Produk Ini
+                                </a>
                             </div>
                         </div>
                         <div class="item-price">
-                            <div class="price-discount">
-                                <span class="original-price">Rp 180.000</span>
-                                <span class="current-price">Rp 135.000</span>
-                            </div>
+                            <span class="harga" data-harga="<?php echo $pecah['harga']; ?>">
+                                Rp <?php echo number_format($pecah['harga'], 0, ',', '.'); ?>
+                            </span>
                         </div>
                         <div class="item-quantity">
-                            <div class="quantity-control">
-                                <button class="quantity-btn minus">-</button>
-                                <input type="text" class="quantity-input" value="1" readonly>
-                                <button class="quantity-btn plus">+</button>
+                            <div class="quantity-control" data-idproduk="<?php echo $id_produk; ?>">
+                                <button type="button" class="btn-minus">-</button>
+                                <input type="text" name="jumlah" value="<?php echo $jumlah; ?>" readonly>
+                                <button type="button" class="btn-plus">+</button>
                             </div>
                         </div>
-                        <div class="item-subtotal">Rp 135.000</div>
+                        <div class="item-subtotal subtotal">
+                            Rp <?php echo number_format($subtotal, 0, ',', '.'); ?>
+                        </div>
                         <div class="item-remove">
-                            <button class="remove-btn"><i class="fas fa-trash"></i></button>
+                            <a href="hapusK.php?id_produk=<?php echo $id_produk; ?>" class="btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
                         </div>
                     </div>
+                    <?php 
+                        }
+                    } else {
+                        echo "<div class='empty-cart-message'>Keranjang belanja Anda kosong</div>";
+                    }
+                    ?>
                     
                     <div class="cart-actions">
                         <a href="produk.html" class="continue-shopping-btn">
                             <i class="fas fa-arrow-left"></i> Lanjutkan Belanja
                         </a>
-                        <button class="empty-cart-btn">
+                        <a href="hapus_keranjang.php" class="empty-cart-btn">
                             <i class="fas fa-trash"></i> Kosongkan Keranjang
-                        </button>
+                        </a>
                     </div>
                 </div>
                 
                 <div class="order-summary">
-                    <h2 class="summary-title">Ringkasan Pesanan</h2>
+                    
                     
                     <div class="summary-row">
                         <span>Subtotal</span>
-                        <span>Rp 535.000</span>
+                        <span>Rp <?php echo number_format($totalHarga, 0, ',', '.'); ?></span>
                     </div>
                     
                     <div class="summary-row">
@@ -193,25 +169,37 @@ include "koneksi.php";
                         <span>- Rp 0</span>
                     </div>
                     
+                    <?php
+                 
+                    $biayaPengiriman = 25000;
+                    $totalBayar = $totalHarga + $biayaPengiriman;
+                    ?>
+                    
                     <div class="summary-row">
                         <span>Estimasi Pengiriman</span>
-                        <span>Rp 25.000</span>
+                        <span>Rp <?php echo number_format($biayaPengiriman, 0, ',', '.'); ?></span>
                     </div>
                     
                     <div class="summary-row total">
                         <span>Total</span>
-                        <span>Rp 560.000</span>
+                        <span>Rp <?php echo number_format($totalBayar, 0, ',', '.'); ?></span>
                     </div>
                     
                     <div class="promo-section">
                         <h3 class="promo-title">Kode Promo</h3>
-                        <div class="promo-form">
-                            <input type="text" class="promo-input" placeholder="Masukkan kode promo">
-                            <button class="promo-btn">Terapkan</button>
-                        </div>
+                        <a href="diskon.php" class="promo-link">
+                            <div class="promo-banner">
+                                <i class="fas fa-ticket-alt"></i>
+                                <span>Lihat Diskon Tersedia</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </a>
                     </div>
                     
-                    <a href="alamat_pengiriman.html" class="checkout-btn">Lanjutkan ke Pembayaran</a>
+                    <a href="<?php echo !empty($_SESSION['keranjang']) ? 'alamat_pengiriman.php' : 'javascript:void(0)'; ?>" 
+                       class="checkout-btn <?php echo empty($_SESSION['keranjang']) ? 'disabled' : ''; ?>">
+                        Lanjutkan ke Pembayaran
+                    </a>
                 </div>
             </div>
         </div>
@@ -268,10 +256,147 @@ include "koneksi.php";
         </div>
     </footer>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners to all plus buttons
+        document.querySelectorAll('.btn-plus').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                ubahJumlah(this, 1);
+            });
+        });
+
+        // Add event listeners to all minus buttons
+        document.querySelectorAll('.btn-minus').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                ubahJumlah(this, -1);
+            });
+        });
+    });
+
+    function ubahJumlah(btn, delta) {
+        // Get the container and necessary elements
+        const container = btn.closest('.quantity-control');
+        const input = container.querySelector('input[name="jumlah"]');
+        const idProduk = container.getAttribute('data-idproduk');
+        
+        // Find the price and subtotal elements
+        const itemContainer = btn.closest('.cart-item');
+        const hargaEl = itemContainer.querySelector('.harga');
+        const subtotalEl = itemContainer.querySelector('.subtotal');
+
+        // Get the current values
+        const harga = parseInt(hargaEl.getAttribute('data-harga'));
+        let jumlah = parseInt(input.value) || 0;
+
+        // Update quantity (minimum 1)
+        jumlah += delta;
+        if (jumlah < 1) jumlah = 1;
+        
+        // Update the input field
+        input.value = jumlah;
+
+        // Calculate and update subtotal
+        const subtotal = harga * jumlah;
+        subtotalEl.textContent = "Rp " + subtotal.toLocaleString('id-ID');
+
+        // Send AJAX request to update the cart in the session and database
+        fetch('update_keranjang.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'id_produk=' + idProduk + '&jumlah=' + jumlah
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log("Update berhasil:", data);
+            
+            // Optionally update the order summary without page refresh
+            // This would require additional code to recalculate totals
+        })
+        .catch(error => {
+            console.error("Gagal update:", error);
+        });
+    }
+    </script>
+
+    <style>
+        /* Cart Badge Styles */
+        .cart-icon {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* Checkout Item Button */
+        .checkout-item-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .checkout-item-btn:hover {
+            background-color: #7BC89A;
+            transform: translateY(-2px);
+        }
+        
+        .checkout-item-btn i {
+            margin-right: 5px;
+        }
+
+        /* Promo Link Styles */
+        .promo-link {
+            text-decoration: none;
+            display: block;
+        }
+
+        .promo-banner {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border: 1px dashed var(--primary-color);
+            border-radius: var(--border-radius);
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+        }
+
+        .promo-banner:hover {
+            background-color: #e8f5ee;
+        }
+
+        .promo-banner i:first-child {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        .promo-banner span {
+            flex: 1;
+        }
+
+        .promo-banner i:last-child {
+            color: var(--text-muted);
+        }
+    </style>
 </body>
 </html>
-<<<<<<< HEAD
-=======
-
-<p>halloo</p>
->>>>>>> 512b55a145e76e2539049b069df012030987bfc1

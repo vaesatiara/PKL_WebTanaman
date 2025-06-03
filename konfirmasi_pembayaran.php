@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+<?php
+include "koneksi.php";
+
+?><!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -48,7 +51,7 @@
                             </div>
                             <div class="detail-row">
                                 <span>Total Pembayaran</span>
-                                <span>Rp 540.000</span>
+                                <span></span>
                             </div>
                             <div class="detail-row">
                                 <span>Metode Pembayaran</span>
@@ -91,7 +94,7 @@
                             
                             <div class="form-buttons">
                                 <a href="struk.html" class="btn btn-outline">Kembali</a>
-                                <button type="submit" class="btn btn-primary">Konfirmasi Pembayaran</button>
+                                <button type="submit" class="btn btn-primary" value="riwayat_pesanan.php">Konfirmasi Pembayaran</button>
                             </div>
                         </form>
                     </div>

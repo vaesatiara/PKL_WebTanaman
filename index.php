@@ -1,3 +1,7 @@
+<?php
+session_start();
+include "koneksi.php";
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -17,15 +21,20 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html" class="active">BERANDA</a></li>
+                    <li><a href="index.php" class="active">BERANDA</a></li>
                     <li><a href="produk.php">PRODUK</a></li>
-                    <li><a href="kontak.html">KONTAK</a></li>
-                    <li><a href="tentang_kami.html">TENTANG KAMI</a></li>
+                    <li><a href="kontak.php">KONTAK</a></li>
+                    <li><a href="tentang_kami.php">TENTANG KAMI</a></li>
                 </ul>
             </nav>
             <div class="icons">
-                <a href="keranjang.html" class="cart-icon"><i class="fas fa-shopping-cart"></i></a>
-                <a href="login.html" class="user-icon"><i class="fas fa-user"></i></a>
+                <a href="keranjang.php" class="cart-icon"><i class="fas fa-shopping-cart"></i></a>
+                <?php if (isset($_SESSION['username'])): ?>
+                <a href="profil.php"><i class="fas fa-user"></i></a>
+                <a href="logout.php"> <i class="fas fa-sign-out-alt"></i> Logout</a>
+                <?php else: ?>
+                <a href="login.php">Login</a>
+                <?php endif; ?>
             </div>
         </div>
     </header>
@@ -114,7 +123,7 @@
             </div>
             
             <div class="view-all">
-                <a href="produk.html" class="btn">Lihat Semua Produk</a>
+                <a href="produk.php" class="btn">Lihat Semua Produk</a>
             </div>
         </div>
     </section>
@@ -241,17 +250,17 @@
                 <div class="footer-links">
                     <h3>Tautan Cepat</h3>
                     <ul>
-                        <li><a href="index.html">BERANDA</a></li>
-                        <li><a href="produk.html">PRODUK</a></li>
-                        <li><a href="kontak.html">KONTAK</a></li>
+                        <li><a href="index.php">BERANDA</a></li>
+                        <li><a href="produk.php">PRODUK</a></li>
+                        <li><a href="kontak.php">KONTAK</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-links">
                     <h3>Kategori</h3>
                     <ul>
-                        <li><a href="produk.html?category=bunga">Tanaman Hias Bunga</a></li>
-                        <li><a href="produk.html?category=daun">Tanaman Hias Daun</a></li>
+                        <li><a href="tanaman_hias_bunga.php?category=bunga">Tanaman Hias Bunga</a></li>
+                        <li><a href="tanaman_hias_daun.php?category=daun">Tanaman Hias Daun</a></li>
                     </ul>
                 </div>
                 

@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tanaman Hias Daun - The Secret Garden</title>
+    <title>Tanaman Hias Bunga - The Secret Garden</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/tanaman_hias_daun.css">
+    <link rel="stylesheet" href="css/tanaman_hias_bunga.css">
 </head>
 <body>
-    <!-- Header -->
+  
     <header>
         <div class="container">
             <div class="logo">
-                <a href="index.html">
+                <a href="index.php">
                     <img src="images/logo.png" alt="The Secret Garden Logo">
                 </a>
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html">BERANDA</a></li>
-                    <li><a href="produk.html" class="active">PRODUK</a></li>
-                    <li><a href="kontak.html">KONTAK</a></li>
-                    <li><a href="tentang-kami.html">TENTANG KAMI</a></li>
+                    <li><a href="index.php">BERANDA</a></li>
+                    <li><a href="produk.php" class="active">PRODUK</a></li>
+                    <li><a href="kontak.php">KONTAK</a></li>
+                    <li><a href="tentang-kami.php">TENTANG KAMI</a></li>
                 </ul>
             </nav>
             <div class="icons">
-                <a href="#"><i class="fas fa-shopping-cart"></i></a>
-                <a href="login.html"><i class="fas fa-user"></i></a>
+                <a href="keranjang.php"><i class="fas fa-shopping-cart"></i></a>
+                <a href="profil.php"><i class="fas fa-user"></i></a>
             </div>
         </div>
     </header>
@@ -35,9 +35,9 @@
     <div class="breadcrumb">
         <div class="container">
             <ul>
-                <li><a href="index.html">Beranda</a></li>
-                <li><a href="produk.html">Produk</a></li>
-                <li>Tanaman Hias Daun</li>
+                <li><a href="index.php">Beranda</a></li>
+                <li><a href="produk.php">Produk</a></li>
+                <li>Tanaman Hias Bunga</li>
             </ul>
         </div>
     </div>
@@ -46,8 +46,8 @@
     <section class="hero-section">
         <div class="container">
             <div class="hero-content">
-                <h1>Tanaman Hias Daun</h1>
-                <p>Koleksi tanaman dengan daun indah dan unik untuk mempercantik ruangan Anda</p>
+                <h1>Tanaman Hias Bunga</h1>
+                <p>Koleksi tanaman dengan bunga cantik dan mempesona untuk mempercantik ruangan Anda</p>
             </div>
         </div>
     </section>
@@ -55,46 +55,45 @@
     <!-- Products Section -->
     <section class="products-section">
         <div class="container">
-            <h2 class="section-title">Koleksi Tanaman Hias Daun</h2>
+            <h2 class="section-title">Koleksi Tanaman Hias Bunga</h2>
             
             <div class="products-grid">
                 <!-- Product 1 -->
                 <div class="product-card">
                     <span class="product-badge">Terlaris</span>
                     <div class="product-image">
-                        <img src="images/Calathea Orbifolia.jpg" alt="Calathea Orbifolia">
+                        <img src="images/krenyem.jpg" alt="krenyem">
                         <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_orbifiola.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                            <a href="keranjang.php" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
+                            <a href="detail_krenyem.html" class="action-btn"><i class="fas fa-eye"></i></a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3><a href="#">Calathea Orbifolia</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
+                        <h3><a href="#">Krenyem/Geranium</a></h3>
+                        <div class="product-category">Tanaman Hias Bunga</div>
                         <div class="product-rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>(4.5)</span>
+                            <span>(4.0)</span>
                         </div>
-                        <div class="product-price">Rp 150.000</div>
+                        <div class="product-price">Rp 60.000</div>
                     </div>
                 </div>
 
-                <!-- Product 2 -->
+
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="images/calathea pinstripe.jpg" alt="Calathea Pinstripe">
+                        <img src="images/Anyelir mini.jpg" alt="Anyelir mini">
                         <div class="product-actions">
                             <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_pinstripe.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                            <a href="detail_anyelir.html" class="action-btn"><i class="fas fa-eye"></i></a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3><a href="#">Calathea Pinstripe</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
+                        <h3><a href="#">Anyelir Mini</a></h3>
+                        <div class="product-category">Tanaman Hias Bunga</div>
                         <div class="product-rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
@@ -103,7 +102,7 @@
                             <i class="far fa-star"></i>
                             <span>(4.0)</span>
                         </div>
-                        <div class="product-price">Rp 135.000</div>
+                        <div class="product-price">Rp 185.000</div>
                     </div>
                 </div>
 
@@ -111,63 +110,61 @@
                 <div class="product-card">
                     <span class="product-badge">Baru</span>
                     <div class="product-image">
-                        <img src="images/chinese money.jpg" alt="Chinese Money">
+                        <img src="images/tulip.jpg" alt="Tulip">
                         <div class="product-actions">
                             <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_chinese.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                            <a href="detail_tulip.html" class="action-btn"><i class="fas fa-eye"></i></a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3><a href="#">Chinese Money</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
+                        <h3><a href="#">Tulip</a></h3>
+                        <div class="product-category">Tanaman Hias Bunga</div>
                         <div class="product-rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>(4.5)</span>
+                            <span>(4.0)</span>
                         </div>
-                        <div class="product-price">Rp 120.000</div>
+                        <div class="product-price">Rp 140.000</div>
                     </div>
                 </div>
 
                 <!-- Product 4 -->
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="images/monstera1 (1).jpeg" alt="Monstera Deliciosa">
+                        <img src="images/saliyah.jpg" alt="saliyah">
                         <div class="product-actions">
                             <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_monstera.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                            <a href="detail_saliyah.html" class="action-btn"><i class="fas fa-eye"></i></a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3><a href="#">Monstera Deliciosa</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
+                        <h3><a href="#">Saliyah/Alzaela</a></h3>
+                        <div class="product-category">Tanaman Hias Bunga</div>
                         <div class="product-rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>(4.5)</span>
+                            <span>(4.0)</span>
                         </div>
-                        <div class="product-price">Rp 175.000</div>
+                        <div class="product-price">Rp 150.000</div>
                     </div>
                 </div>
 
                 <!-- Product 5 -->
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="images/Aspidistra elatior.jpg" alt="aspidistra">
+                        <img src="images/oxalis.jpg" alt="oxalis">
                         <div class="product-actions">
                             <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_aspidistra.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                            <a href="detail_oxalis.html" class="action-btn"><i class="fas fa-eye"></i></a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3><a href="#">Philodendron Birkin</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
+                        <h3><a href="#">Oxalis Triangularis</a></h3>
+                        <div class="product-category">Tanaman Hias Bunga</div>
                         <div class="product-rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
@@ -183,15 +180,15 @@
                 <!-- Product 6 -->
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="images/peperomia watermelon.jpg" alt="peperomia">
+                        <img src="images/krisan.jpg" alt="Krisan">
                         <div class="product-actions">
                             <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_peperomia.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                            <a href="detail_krisan.html" class="action-btn"><i class="fas fa-eye"></i></a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3><a href="#">Peperomia Watermelon</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
+                        <h3><a href="#">Krisan Aster Kuning</a></h3>
+                        <div class="product-category">Tanaman Hias Bunga</div>
                         <div class="product-rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
@@ -199,70 +196,22 @@
                             <i class="far fa-star"></i>
                             <span>(4.0)</span>
                         </div>
-                        <div class="product-price">Rp 130.000</div>
+                        <div class="product-price">Rp 115.000</div>
                     </div>
                 </div>
 
                 <!-- Product 7 -->
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="images/zamioculcas.jpg" alt="zamioculcas">
+                        <img src="images/mawar pink.jpg" alt="mawar">
                         <div class="product-actions">
                             <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_zamioculcas.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                            <a href="detail_mawar.html" class="action-btn"><i class="fas fa-eye"></i></a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3><a href="#">Zamioculacas Zamiifolia</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <span>(4.0)</span>
-                        </div>
-                        <div class="product-price">Rp 99.000</div>
-                    </div>
-                </div>
-
-                <!-- Product 8 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/calateha roseopicta.jpg" alt="calateha roseopicta">
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_roseopicta.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Calathea Roseopictas</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <span>(4.0)</span>
-                        </div>
-                        <div class="product-price">Rp 98.000</div>
-                    </div>
-                </div>
-
-                <!-- Product 9 (Added) -->
-                <div class="product-card">
-                    <span class="product-badge">Diskon</span>
-                    <div class="product-image">
-                        <img src="images/ficus.jpg" alt="ficus>
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_ficus.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Ficus Elastika</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
+                        <h3><a href="#">Mawar Pink</a></h3>
+                        <div class="product-category">Tanaman Hias Bunga</div>
                         <div class="product-rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
@@ -271,7 +220,56 @@
                             <i class="fas fa-star-half-alt"></i>
                             <span>(4.5)</span>
                         </div>
-                        <div class="product-price">Rp 195.000</div>
+                        <div class="product-price">Rp 99.000</div>
+                    </div>
+                </div>
+
+                <!-- Product 8 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/lavender.jpg" alt="lavender">
+                        <div class="product-actions">
+                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
+                            <a href="detail_lavender.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3><a href="#">Lavender</a></h3>
+                        <div class="product-category">Tanaman Hias Bunga</div>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>(4.5)</span>
+                        </div>
+                        <div class="product-price">Rp 155.000</div>
+                    </div>
+                </div>
+
+                <!-- Product 9 (Added) -->
+                <div class="product-card">
+                    <span class="product-badge">Diskon</span>
+                    <div class="product-image">
+                        <img src="images/anggrek.jpg" alt="anggrek">
+                        <div class="product-actions">
+                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
+                            <a href="detail_anggrek.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3><a href="#">Anggrek</a></h3>
+                        <div class="product-category">Tanaman Hias Bunga</div>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>(4.5)</span>
+                        </div>
+                        <div class="product-price">Rp 170.000</div>
                     </div>
                 </div>
             </div>
@@ -282,7 +280,7 @@
     <section class="newsletter">
         <div class="container">
             <div class="newsletter-content">
-                <h2>Kirim kritik/Saran untuk kami</h2>
+                <h2>Kirim kritik/saran untuk kami</h2>
                 <p>ceritakan kepada kami kritik dan saran anda</p>
                 <form class="newsletter-form">
                     <input type="email" placeholder="Masukkan kritik/saran">
@@ -309,17 +307,17 @@
                 <div class="footer-links">
                     <h3>Tautan Cepat</h3>
                     <ul>
-                        <li><a href="index.html">Beranda</a></li>
-                        <li><a href="produk.html">Produk</a></li>
-                        <li><a href="tentang-kami.html">Tentang Kami</a></li>
-                        <li><a href="kontak.html">Kontak</a></li>
+                        <li><a href="index.php">Beranda</a></li>
+                        <li><a href="produk.php">Produk</a></li>
+                         <li><a href="kontak.php">Kontak</a></li>
+                        <li><a href="tentang-kami.php">Tentang Kami</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
                     <h3>Kategori</h3>
                     <ul>
-                        <li><a href="tanaman-hias-daun.html">Tanaman Hias Daun</a></li>
-                        <li><a href="tanaman-hias-bunga.html">Tanaman Hias Bunga</a></li>
+                        <li><a href="tanaman_hias_daun.php">Tanaman Hias Daun</a></li>
+                        <li><a href="tanaman_hias_bunga.php">Tanaman Hias Bunga</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">

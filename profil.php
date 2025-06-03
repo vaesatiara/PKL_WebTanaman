@@ -1,3 +1,12 @@
+<?php
+session_start();
+include "koneksi.php";
+$id_pelanggan = $_POST['id_pelanggan'];
+
+$sql="SELECT * FROM pelanggan WHERE id_pelanggan= '$id_pelanggan' ";
+$query=mysqli_query($koneksi,$sql);
+$pelanggan = mysqli_fetch_assoc($query);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -17,14 +26,14 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html">BERANDA</a></li>
-                    <li><a href="produk.html">PRODUK</a></li>
-                    <li><a href="kontak.html">KONTAK</a></li>
-                    <li><a href="tentang.html">TENTANG KAMI</a></li>
+                    <li><a href="index.php">BERANDA</a></li>
+                    <li><a href="produk.php">PRODUK</a></li>
+                    <li><a href="kontak.php">KONTAK</a></li>
+                    <li><a href="tentang_kami.php">TENTANG KAMI</a></li>
                 </ul>
             </nav>
             <div class="icons">
-                <a href="keranjang.html"><i class="fas fa-shopping-cart"></i></a>
+                <a href="keranjang.php"><i class="fas fa-shopping-cart"></i></a>
                 <a href="profil.html" class="active"><i class="fas fa-user"></i></a>
             </div>
         </div>
@@ -39,34 +48,34 @@
                             <img src="images/user.jpg" alt="caselline">
                         </div>
                         <div class="profile-info">
-                            <h2>Caselline</h2>
-                            <p>caselline11@gmail.com</p>
+                            <h2><?=$pelanggan['username']?></h2>
+                            <p><?=$pelanggan['email']?></p>
                         </div>
                     </div>
                     <div class="profile-nav">
                         <ul>
                             <li class="active">
-                                <a href="profil.html">
+                                <a href="profil.php">
                                     <i class="fas fa-user"></i> Profil Saya
                                 </a>
                             </li>
                             <li>
-                                <a href="riwayat_pesanan.html">
+                                <a href="riwayat_pesanan.php">
                                     <i class="fas fa-shopping-bag"></i> Riwayat Pesanan
                                 </a>
                             </li>
                             <li>
-                                <a href="alamat_tersimpan.html">
+                                <a href="alamat_tersimpan.php">
                                     <i class="fas fa-map-marker-alt"></i> Alamat Tersimpan
                                 </a>
                             </li>
                             <li>
-                                <a href="ubah_password.html">
+                                <a href="ubah_password.php">
                                     <i class="fas fa-lock"></i> Ubah Password
                                 </a>
                             </li>
                             <li>
-                                <a href="login.html" class="logout">
+                                <a href="login.php" class="logout">
                                     <i class="fas fa-sign-out-alt"></i> Logout
                                 </a>
                             </li>
