@@ -32,9 +32,6 @@ session_start();
                <?php if (isset($_SESSION['username'])): ?>
                 <a href="profil.php"><i class="fas fa-user"></i></a>
                  <a href="logout.php"> <i class="fas fa-sign-out-alt"></i> Logout</a>
-                <?php else: ?>
-                 <a href="login.php">Login</a>
-                <?php endif; ?>
             </div>
         </div>
     </header>
@@ -140,15 +137,6 @@ session_start();
                         <div class="form-group">
                             <label for="phone">Nomor Telepon</label>
                             <input type="number" name="no_hp" id_saran="" class="form-control">
-                        </div>
-                        
-                        <div class="form-group">
-                        <label for="">Subjek</label>
-                        <select id_saran="" name="subjek" class="form-control">
-                            <option value="" selected disabled>Subjek</option>
-                            <option value="front end">Front End</option>
-                            <option value="back end">Back End</option>
-                        </select>
                         </div>
                         
                         
