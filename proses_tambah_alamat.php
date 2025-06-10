@@ -18,9 +18,9 @@ VALUES ('$id_pelanggan','$label_alamat','$nama_penerima','$no_telepon','$provins
 $query=mysqli_query($koneksi,$sql);
 
 if($query){
-    header ("location:alamat_pengiriman.php?simpan=sukses");
+    header ("location:alamat_tersimpan.php?simpan=sukses");
     exit;
 }else{
-    header ("location:alamat_pengiriman.php?simpan=gagal");
+    header ("location:tambah_alamat.php?simpan=gagal");
     exit;
 }

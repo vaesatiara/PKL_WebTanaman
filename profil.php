@@ -1,11 +1,17 @@
 <?php
 session_start();
 include "koneksi.php";
-$id_pelanggan = $_POST['id_pelanggan'];
 
-$sql="SELECT * FROM pelanggan WHERE id_pelanggan= '$id_pelanggan' ";
-$query=mysqli_query($koneksi,$sql);
+if (!isset($_SESSION['username'])){
+    header("Location:login.php?login dulu");
+    exit;
+}
+
+$username = $_SESSION['username'];
+$sql = "SELECT * FROM pelanggan WHERE username= '$username'";
+$query = mysqli_query($koneksi, $sql);
 $pelanggan = mysqli_fetch_assoc($query);
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -48,7 +54,7 @@ $pelanggan = mysqli_fetch_assoc($query);
                             <img src="images/user.jpg" alt="caselline">
                         </div>
                         <div class="profile-info">
-                            <h2><?=$pelanggan['username']?></h2>
+                            <h2><?php echo $pelanggan ['username']?></h2>
                             <p><?=$pelanggan['email']?></p>
                         </div>
                     </div>
@@ -86,7 +92,7 @@ $pelanggan = mysqli_fetch_assoc($query);
                 <div class="profile-content">
                     <div class="content-header">
                         <h1>Profil Saya</h1>
-                        <a href="#" class="btn btn-primary">
+                        <a href="edit_profil.php" class="btn btn-primary">
                             <i class="fas fa-edit"></i> Edit Profil
                         </a>
                     </div>
@@ -95,33 +101,33 @@ $pelanggan = mysqli_fetch_assoc($query);
                         <div class="profile-row">
                             <div class="profile-field">
                                 <h3>Nama Lengkap</h3>
-                                <p>Caselline Grzyline</p>
+                                <p><?php echo $pelanggan['nama_lengkap']?></p>
                             </div>
                             <div class="profile-field">
                                 <h3>Username</h3>
-                                <p>Caselline</p>
+                                <p><?php echo $pelanggan['username']?></p>
                             </div>
                         </div>
                         
                         <div class="profile-row">
                             <div class="profile-field">
                                 <h3>Email</h3>
-                                <p>caselline11@gmail.com</p>
+                                <p><?php echo $pelanggan['email']?></p>
                             </div>
                             <div class="profile-field">
                                 <h3>Nomor Telepon</h3>
-                                <p>0812-3456-7890</p>
+                                <p><?=$pelanggan['no_hp']?></p>
                             </div>
                         </div>
                         
                         <div class="profile-row">
                             <div class="profile-field">
                                 <h3>Tanggal Lahir</h3>
-                                <p>15 Januari 2002</p>
+                                <p><?=$pelanggan['tanggal_lahir']?></p>
                             </div>
                             <div class="profile-field">
                                 <h3>Jenis Kelamin</h3>
-                                <p>Perempuan</p>
+                                <p><?=$pelanggan['jenis_kelamin']?></p>
                             </div>
                         </div>
                     </div>

@@ -1,3 +1,135 @@
+<?php
+session_start();
+include "koneksi.php";
+
+// Fungsi untuk mendapatkan data pesanan
+function getOrderData($source = 'cart', $product_id = null, $quantity = 1) {
+    global $koneksi;
+    $orderItems = [];
+    $totalHarga = 0;
+    
+    if ($source === 'cart') {
+        // Ambil dari keranjang
+        if (isset($_SESSION['keranjang']) && !empty($_SESSION['keranjang'])) {
+            foreach ($_SESSION['keranjang'] as $id_produk => $jumlah) {
+                if (empty($id_produk)) continue;
+                
+                $query = $koneksi->query("SELECT * FROM produk WHERE id_produk='$id_produk'");
+                $produk = $query->fetch_assoc();
+                
+                if ($produk) {
+                    $subtotal = $produk['harga'] * $jumlah;
+                    $orderItems[] = [
+                        'id_produk' => $id_produk,
+                        'nama_tanaman' => $produk['nama_tanaman'],
+                        'harga' => $produk['harga'],
+                        'foto' => $produk['foto'],
+                        'jumlah' => $jumlah,
+                        'subtotal' => $subtotal
+                    ];
+                    $totalHarga += $subtotal;
+                }
+            }
+        }
+    } else if ($source === 'buy_now' && $product_id) {
+        // Ambil dari beli sekarang
+        $query = $koneksi->query("SELECT * FROM produk WHERE id_produk='$product_id'");
+        $produk = $query->fetch_assoc();
+        
+        if ($produk) {
+            $subtotal = $produk['harga'] * $quantity;
+            $orderItems[] = [
+                'id_produk' => $product_id,
+                'nama_tanaman' => $produk['nama_tanaman'],
+                'harga' => $produk['harga'],
+                'foto' => $produk['foto'],
+                'jumlah' => $quantity,
+                'subtotal' => $subtotal
+            ];
+            $totalHarga = $subtotal;
+        }
+    }
+    
+    return [
+        'items' => $orderItems,
+        'subtotal' => $totalHarga
+    ];
+}
+
+// Fungsi untuk mendapatkan alamat pengiriman yang dipilih
+function getSelectedAddress() {
+    global $koneksi;
+    
+    // Jika ada alamat yang dipilih dari form sebelumnya
+    if (isset($_POST['selected_address_id'])) {
+        $address_id = $_POST['selected_address_id'];
+        $query = $koneksi->query("SELECT * FROM pengiriman WHERE id_pengiriman='$address_id'");
+        return $query->fetch_assoc();
+    }
+    
+    // Jika tidak ada, ambil alamat default atau yang pertama
+    $query = $koneksi->query("SELECT * FROM pengiriman ORDER BY id_pengiriman DESC LIMIT 1");
+    return $query->fetch_assoc();
+}
+
+// Fungsi untuk menghitung biaya pengiriman berdasarkan metode
+function getShippingCost($method = 'jne') {
+    $shippingCosts = [
+        'jne' => 25000,
+        'jnt' => 30000,
+        'ninja' => 28000,
+        'anteraja' => 26000
+    ];
+    
+    return isset($shippingCosts[$method]) ? $shippingCosts[$method] : 25000;
+}
+
+// Fungsi untuk mendapatkan nama metode pengiriman
+function getShippingName($method = 'jne') {
+    $shippingNames = [
+        'jne' => 'JNE Regular',
+        'jnt' => 'J&T Express',
+        'ninja' => 'Ninja Xpress',
+        'anteraja' => 'AnterAja Regular'
+    ];
+    
+    return isset($shippingNames[$method]) ? $shippingNames[$method] : 'JNE Regular';
+}
+
+// Tentukan sumber data berdasarkan parameter
+$source = isset($_GET['source']) ? $_GET['source'] : (isset($_POST['order_source']) ? $_POST['order_source'] : 'cart');
+$product_id = isset($_GET['id_produk']) ? $_GET['id_produk'] : (isset($_POST['product_id']) ? $_POST['product_id'] : null);
+$quantity = isset($_GET['qty']) ? (int)$_GET['qty'] : (isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1);
+
+// Ambil data pesanan
+$orderData = getOrderData($source, $product_id, $quantity);
+
+// Ambil alamat pengiriman yang dipilih
+$shippingAddress = getSelectedAddress();
+
+// Tentukan metode pengiriman (default atau dari form)
+$selectedShipping = isset($_POST['shipping_method']) ? $_POST['shipping_method'] : 'jne';
+$shippingCost = getShippingCost($selectedShipping);
+$shippingName = getShippingName($selectedShipping);
+
+// Hitung total
+$total = $orderData['subtotal'] + $shippingCost;
+
+// Proses jika form metode pengiriman disubmit
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_shipping'])) {
+    $selectedShipping = $_POST['shipping_method'];
+    $shippingCost = getShippingCost($selectedShipping);
+    $shippingName = getShippingName($selectedShipping);
+    $total = $orderData['subtotal'] + $shippingCost;
+
+
+}
+$username = $_SESSION['username'];
+$sql = "SELECT * FROM pelanggan WHERE username= '$username'";
+$query = mysqli_query($koneksi, $sql);
+$pelanggan = mysqli_fetch_assoc($query);
+
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -39,8 +171,8 @@
                             <img src="images/user.jpg" alt="Budi Santoso">
                         </div>
                         <div class="profile-info">
-                            <h2>Casseline</h2>
-                            <p>caselline11@gmail.com</p>
+                            <h2><?=$pelanggan['username']?></h2>
+                            <p><?=$pelanggan['email']?></p>
                         </div>
                     </div>
                     <div class="profile-nav">
@@ -101,26 +233,31 @@
                             </div>
                             <div class="order-items">
                                 <div class="order-item">
-                                    <img src="images/bunga2.jpg" alt="Monstera">
-                                    <div class="item-details">
-                                        <h3>Monstera Deliciosa</h3>
-                                        <p>1 x Rp195.000</p>
+                                         
+                        <div class="summary-items">
+                            <?php foreach ($orderData['items'] as $item): ?>
+                            <div class="summary-item">
+                                <img src="uploads/<?= $item['foto'] ?>" alt="<?= $item['nama_tanaman'] ?>" class="item-image">
+                                <div class="item-info">
+                                    <h3><?= htmlspecialchars($item['nama_tanaman']) ?></h3>
+                                    <p><?= $item['jumlah'] ?> x Rp<?= number_format($item['harga'], 0, ',', '.') ?></p>
+                                </div>
+                                <div class="item-price">Rp<?= number_format($item['subtotal'], 0, ',', '.') ?></div>
+                            </div>
+                            <?php endforeach; ?>
+                        
+                        </div>
+                                    
                                     </div>
                                 </div>
-                                <div class="order-item">
-                                    <img src="images/bunga1.jpg" alt="Calathea">
-                                    <div class="item-details">
-                                        <h3>Calathea Orbifolia</h3>
-                                        <p>1 x Rp175.000</p>
-                                    </div>
-                                </div>
+                                
                             </div>
                             <div class="order-footer">
                                 <div class="order-total">
-                                    Total Pesanan: <span class="total-amount">Rp370.000</span>
+                                    Total Pesanan: <span >Rp<?= number_format($total, 0, ',', '.') ?></span>
                                 </div>
                                 <div class="order-actions">
-                                    <a href="#" class="btn btn-outline">Detail Pesanan</a>
+                                    <a href="detail_pesanan.php?id_pesanan=<?=$pesanan['id_pesanan'] ?>" class="btn btn-outline">Detail Pesanan</a>
                                     <a href="#" class="btn btn-primary">Beli Lagi</a>
                                 </div>
                             </div>

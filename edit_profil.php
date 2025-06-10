@@ -1,11 +1,17 @@
 <?php
 session_start();
 include "koneksi.php";
-$id_pelanggan = $_POST['id_pelanggan'] ?? $_GET['id_pelanggan'] ?? '';
 
-$sql="SELECT * FROM pelanggan WHERE id_pelanggan= '$id_pelanggan' ";
-$query=mysqli_query($koneksi,$sql);
+if (!isset($_SESSION['username'])){
+    header("Location:login.php?login dulu");
+    exit;
+}
+
+$username = $_SESSION['username'];
+$sql = "SELECT * FROM pelanggan WHERE username= '$username'";
+$query = mysqli_query($koneksi, $sql);
 $pelanggan = mysqli_fetch_assoc($query);
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -108,7 +114,7 @@ $pelanggan = mysqli_fetch_assoc($query);
                     <?php endif; ?>
                     
                     <div class="edit-profile-form">
-                        <form action="update-profil.php" method="POST" enctype="multipart/form-data" id="edit-form">
+                        <form action="proses_edit_profil.php" method="POST" enctype="multipart/form-data" id="edit-form">
                             <input type="hidden" name="id_pelanggan" value="<?=$pelanggan['id_pelanggan']?>">
                             
                             <!-- Upload Foto Profil -->
@@ -135,7 +141,7 @@ $pelanggan = mysqli_fetch_assoc($query);
                                     </div>
                                     <div class="form-group">
                                         <label for="username" class="required">Username</label>
-                                        <input type="text" id="username" name="username" 
+                                        <input type="text" id_pelanggan="" name="username" 
                                                value="<?=$pelanggan['username']?>" required>
                                     </div>
                                 </div>
@@ -143,13 +149,14 @@ $pelanggan = mysqli_fetch_assoc($query);
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="email" class="required">Email</label>
-                                        <input type="email" id="email" name="email" 
-                                               value="<?=$pelanggan['email']?>" required>
+                                        <input type="text" name="email"  id_pelanggan=""
+                                         value="<?= $pelanggan['email'] ?>" required>
+
                                     </div>
                                     <div class="form-group">
                                         <label for="no_telepon">Nomor Telepon</label>
-                                        <input type="tel" id="no_telepon" name="no_telepon" 
-                                               value="<?=$pelanggan['no_telepon'] ?? '0812-3456-7890'?>">
+                                        <input type="" id="no_telepon" name="no_hp" 
+                                               value="<?=$pelanggan['no_hp'] ?>">
                                         <div class="field-help">Format: 08xx-xxxx-xxxx</div>
                                     </div>
                                 </div>
@@ -169,27 +176,6 @@ $pelanggan = mysqli_fetch_assoc($query);
                                         </select>
                                     </div>
                                 </div>
-
-                                <div class="form-group full-width">
-                                    <label for="alamat">Alamat</label>
-                                    <textarea id="alamat" name="alamat" rows="3" maxlength="200"
-                                              placeholder="Masukkan alamat lengkap"><?=$pelanggan['alamat'] ?? ''?></textarea>
-                                    <div class="char-counter"><span id="alamat-count">0</span>/200 karakter</div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="kota">Kota</label>
-                                        <input type="text" id="kota" name="kota" 
-                                               value="<?=$pelanggan['kota'] ?? ''?>" placeholder="Masukkan kota">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="kode_pos">Kode Pos</label>
-                                        <input type="text" id="kode_pos" name="kode_pos" 
-                                               value="<?=$pelanggan['kode_pos'] ?? ''?>" placeholder="Masukkan kode pos">
-                                    </div>
-                                </div>
-                            </div>
 
                             <div class="form-actions">
                                 <button type="button" class="btn btn-outline" onclick="window.location.href='profil.php'">

@@ -8,8 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/login.css">
 </head>
-<body>
-    <!-- Header -->
+<body>  
     <header>
         <div class="container">
             <div class="logo">
@@ -98,7 +97,7 @@
 </form>
     </main>
 
-    <!-- Footer -->
+
     <footer>
         <div class="container">
             <div class="footer-content">
@@ -115,17 +114,17 @@
                 <div class="footer-links">
                     <h3>Tautan Cepat</h3>
                     <ul>
-                        <li><a href="index.html">Beranda</a></li>
-                        <li><a href="produk.html">Produk</a></li>
-                        <li><a href="tentang-kami.html">Tentang Kami</a></li>
-                        <li><a href="kontak.html">Kontak</a></li>
+                        <li><a href="index.php">Beranda</a></li>
+                        <li><a href="produk.php">Produk</a></li>
+                        <li><a href="kontak.php">Kontak</a></li>
+                        <li><a href="tentang-kami.php">Tentang Kami</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
                     <h3>Kategori</h3>
                     <ul>
-                        <li><a href="tanaman-hias-daun.html">Tanaman Hias Daun</a></li>
-                        <li><a href="tanaman-hias-bunga.html">Tanaman Hias Bunga</a></li>
+                        <li><a href="tanaman_hias_daun.php">Tanaman Hias Daun</a></li>
+                        <li><a href="tanaman_hias_bunga.php">Tanaman Hias Bunga</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
@@ -143,7 +142,6 @@
     </footer>
 
     <script>
-        // Toggle password visibility
         document.querySelectorAll('.toggle-password').forEach(function(toggle) {
             toggle.addEventListener('click', function() {
                 const passwordInput = this.previousElementSibling;

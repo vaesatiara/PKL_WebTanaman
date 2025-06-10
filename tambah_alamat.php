@@ -17,12 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Jika dijadikan alamat utama, update alamat lain menjadi tidak utama
     if ($is_primary) {
-        $update_sql = "UPDATE alamat_pelanggan SET is_primary = 0 WHERE id_pelanggan = '$id_pelanggan'";
+        $update_sql = "UPDATE pengiriman SET is_primary = 0 WHERE id_pelanggan = '$id_pelanggan'";
         mysqli_query($koneksi, $update_sql);
     }
     
     // Insert alamat baru
-    $insert_sql = "INSERT INTO alamat_pelanggan (id_pelanggan, label_alamat, nama_penerima, no_telepon, provinsi, kota, kecamatan, kode_pos, alamat_lengkap, is_primary) 
+    $insert_sql = "INSERT INTO pengiriman(id_pelanggan, label_alamat, nama_penerima, no_telepon, provinsi, kota, kecamatan, kode_pos, alamat_lengkap, is_primary) 
                    VALUES ('$id_pelanggan', '$label_alamat', '$nama_penerima', '$no_telepon', '$provinsi', '$kota', '$kecamatan', '$kode_pos', '$alamat_lengkap', '$is_primary')";
     
     if (mysqli_query($koneksi, $insert_sql)) {
@@ -34,10 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Ambil data pelanggan
-$sql = "SELECT * FROM pelanggan WHERE id_pelanggan = '$id_pelanggan'";
+$username = $_SESSION['username'];
+$sql = "SELECT * FROM pelanggan WHERE username= '$username'";
 $query = mysqli_query($koneksi, $sql);
 $pelanggan = mysqli_fetch_assoc($query);
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -140,7 +141,7 @@ $pelanggan = mysqli_fetch_assoc($query);
                     <?php endif; ?>
                     
                     <div class="address-form-container">
-                        <form action="tambah-alamat.php" method="POST" id="addressForm">
+                        <form action="proses_tambah_alamat.php" method="POST" id="addressForm">
                             <div class="form-grid">
                                 <div class="form-group full-width">
                                     <label for="label_alamat" class="required">Label Alamat</label>
@@ -180,6 +181,7 @@ $pelanggan = mysqli_fetch_assoc($query);
                                         <label for="kota" class="required">Kota/Kabupaten</label>
                                         <select id="kota" name="kota" required>
                                             <option value="">Pilih Kota/Kabupaten</option>
+                                             <option value="Yogyakarta">D.I. Yogyakarta</option>
                                         </select>
                                     </div>
                                 </div>
@@ -189,13 +191,10 @@ $pelanggan = mysqli_fetch_assoc($query);
                                         <label for="kecamatan" class="required">Kecamatan</label>
                                         <select id="kecamatan" name="kecamatan" required>
                                             <option value="">Pilih Kecamatan</option>
+                                             <option value="Yogyakarta">D.I. Yogyakarta</option>
                                         </select>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="kode_pos" class="required">Kode Pos</label>
-                                        <input type="text" id="kode_pos" name="kode_pos" 
-                                               placeholder="12345" maxlength="5" required>
-                                    </div>
+                                 
                                 </div>
                                 
                                 <div class="form-group full-width">

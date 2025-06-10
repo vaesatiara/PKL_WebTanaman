@@ -8,6 +8,7 @@ $password=$_POST['password'];
 $sql="SELECT * FROM pelanggan WHERE username='$username' AND password=md5('$password')";
 $query=mysqli_query($koneksi,$sql);
 
+
 if(mysqli_num_rows($query) ==1){
     $_SESSION['username']=$username;
     header("Location:index.php?login=sukses");

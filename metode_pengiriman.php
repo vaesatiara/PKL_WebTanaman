@@ -179,7 +179,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_shipping'])) {
             
             <div class="checkout-content">
                 <div class="checkout-form">
-                    <h2>Ringkasan Pesanan & Metode Pengiriman</h2>
+                    <h2>Metode Pengiriman</h2>
+                     <a href="alamat_pengiriman.php" class="btn btn-outline" style="margin-bottom: 20px; display: inline-block;">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Alamat Pengiriman
+                    </a>
                     
                     <!-- Alamat Pengiriman -->
                     <div class="address-section">

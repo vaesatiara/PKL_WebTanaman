@@ -1,5 +1,7 @@
 <?php
+session_start();
 include "koneksi.php";
+
 
 ?><!DOCTYPE html>
 <html lang="id">
@@ -51,7 +53,7 @@ include "koneksi.php";
                             </div>
                             <div class="detail-row">
                                 <span>Total Pembayaran</span>
-                                <span></span>
+                                <span>Rp. <?= number_format($total, 0, ',', '.') ?></span>
                             </div>
                             <div class="detail-row">
                                 <span>Metode Pembayaran</span>
@@ -59,46 +61,48 @@ include "koneksi.php";
                             </div>
                         </div>
                         
-                        <form id="payment-confirmation-form">
+                        <form action="proses_pembayaran.php" method="post" enctype="multipart/form-data">
                             <div class="form-group">
                                 <label for="payment-date">Tanggal Pembayaran</label>
-                                <input type="date" id="payment-date" name="payment-date" required>
+                                <input type="date" id_pembayaran="" name="tgl_pembayaran" required>
                             </div>
                             
                             <div class="form-group">
                                 <label for="payment-time">Waktu Pembayaran</label>
-                                <input type="time" id="payment-time" name="payment-time" required>
+                                <input type="time" id_pembayaran="" name="waktu_bayar" required>
                             </div>
                             
                             <div class="form-group">
-                                <label for="payment-amount">Jumlah Pembayaran</label>
-                                <input type="text" id="payment-amount" name="payment-amount" value="540000" required>
+                            <label for="payment-amount">Jumlah Pembayaran</label>
+                            <input type="text" id="payment-amount" name="payment-amount"
+                            value="Rp<?= number_format($total, 0, ',', '.') ?>"readonly required>
                             </div>
                             
-                            <div class="form-group">
-                                <label for="payment-proof">Bukti Pembayaran</label>
-                                <div class="file-upload">
-                                    <input type="file" id="payment-proof" name="payment-proof" accept="image/*" required>
-                                    <label for="payment-proof" class="file-label">
-                                        <i class="fas fa-upload"></i> Pilih File
-                                    </label>
-                                    <span class="file-name">Belum ada file dipilih</span>
-                                </div>
-                                <p class="file-help">Format yang diterima: JPG, PNG, PDF. Maksimal 2MB.</p>
-                            </div>
+                          <div class="form-group">
+    <label for="payment-proof">Bukti Pembayaran</label>
+    <div class="file-upload">
+        <input type="file" id="payment-proof" name="file_image" class="file-input" accept=".jpg,.png,.pdf" hidden>
+        <label for="payment-proof" class="file-label">
+            <i class="fas fa-upload"></i> Pilih File
+        </label>
+        <span class="file-name">Belum ada file dipilih</span>
+    </div>
+    <p class="file-help">Format yang diterima: JPG, PNG, PDF. Maksimal 2MB.</p>
+</div>
                             
                             <div class="form-group">
                                 <label for="payment-notes">Catatan (Opsional)</label>
-                                <textarea id="payment-notes" name="payment-notes" rows="3"></textarea>
+                                <textarea id_pmbayaran="payment-notes" name="catatan" rows="3"></textarea>
                             </div>
                             
                             <div class="form-buttons">
-                                <a href="struk.html" class="btn btn-outline">Kembali</a>
-                                <button type="submit" class="btn btn-primary" value="riwayat_pesanan.php">Konfirmasi Pembayaran</button>
+                                <a href="konfirmaasi_pesanan.php" class="btn btn-outline">Kembali</a>
+                                <button type="submit" class="btn btn-primary" value="">Konfirmasi Pembayaran</button>
                             </div>
-                        </form>
+                        
                     </div>
                 </div>
+                </form>
                 
                 <div class="confirmation-info">
                     <div class="info-card">
