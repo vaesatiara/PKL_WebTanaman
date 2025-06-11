@@ -1,3 +1,11 @@
+<?php
+session_start();
+include "koneksi.php";
+
+// Query untuk mengambil produk dengan kategori daun
+$sql = "SELECT * FROM produk WHERE kategori = 'Tanaman Hias Daun' ORDER BY id_produk DESC";
+$query = mysqli_query($koneksi, $sql);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -21,12 +29,18 @@
                     <li><a href="index.php">BERANDA</a></li>
                     <li><a href="produk.php" class="active">PRODUK</a></li>
                     <li><a href="kontak.php">KONTAK</a></li>
-                    <li><a href="tentang-kami.php">TENTANG KAMI</a></li>
+                    <li><a href="tentang_kami.php">TENTANG KAMI</a></li>
                 </ul>
             </nav>
             <div class="icons">
-                <a href="keranjang.php"><i class="fas fa-shopping-cart"></i></a>
-                <a href="login.php"><i class="fas fa-user"></i></a>
+                <?php if (isset($_SESSION['username'])): ?>
+                    <a href="keranjang.php"><i class="fas fa-shopping-cart"></i></a>
+                    <a href="profil.php"><i class="fas fa-user"></i></a>
+                    <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <?php else: ?>
+                    <a href="keranjang.php"><i class="fas fa-shopping-cart"></i></a>
+                    <a href="login.php"><i class="fas fa-user"></i></a>
+                <?php endif; ?>
             </div>
         </div>
     </header>
@@ -52,25 +66,34 @@
         </div>
     </section>
 
-    
+    <!-- Products Section -->
     <section class="products-section">
         <div class="container">
             <h2 class="section-title">Koleksi Tanaman Hias Daun</h2>
             
             <div class="products-grid">
-               
+                <?php while($produk = mysqli_fetch_assoc($query)) : ?>
                 <div class="product-card">
-                    <span class="product-badge">Terlaris</span>
                     <div class="product-image">
-                        <img src="images/Calathea Orbifolia.jpg" alt="Calathea Orbifolia">
+                        <img src="/admin/Admin_WebTanaman/uploads/<?= $produk['foto'] ?>" alt="<?= $produk['nama_tanaman'] ?>">
                         <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_orbifiola.html" class="action-btn"><i class="fas fa-eye"></i></a>
+                            <?php if (isset($_SESSION['username'])): ?>
+                                <a href="keranjang.php?id_produk=<?= $produk['id_produk'] ?>" class="action-btn">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </a>
+                            <?php else: ?>
+                                <a href="login.php" onclick="alert('Silakan login terlebih dahulu untuk menambahkan ke keranjang.');" class="action-btn">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </a>
+                            <?php endif; ?>
+                            <a href="detail_produk.php?id_produk=<?= $produk['id_produk'] ?>" class="action-btn">
+                                <i class="fas fa-eye"></i>
+                            </a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3><a href="#">Calathea Orbifolia</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
+                        <h3><a href="detail_produk.php?id_produk=<?= $produk['id_produk'] ?>"><?= $produk['nama_tanaman'] ?></a></h3>
+                        <div class="product-category"><?= $produk['kategori'] ?></div>
                         <div class="product-rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
@@ -79,206 +102,15 @@
                             <i class="fas fa-star-half-alt"></i>
                             <span>(4.5)</span>
                         </div>
-                        <div class="product-price">Rp 150.000</div>
+                        <div class="product-price">Rp <?= number_format($produk['harga'], 0, ',', '.') ?></div>
                     </div>
                 </div>
-
-                <!-- Product 2 -->
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/calathea pinstripe.jpg" alt="Calathea Pinstripe">
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_pinstripe.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Calathea Pinstripe</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <span>(4.0)</span>
-                        </div>
-                        <div class="product-price">Rp 135.000</div>
-                    </div>
-                </div>
-
-                <!-- Product 3 -->
-                <div class="product-card">
-                    <span class="product-badge">Baru</span>
-                    <div class="product-image">
-                        <img src="images/chinese money.jpg" alt="Chinese Money">
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_chinese.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Chinese Money</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>(4.5)</span>
-                        </div>
-                        <div class="product-price">Rp 120.000</div>
-                    </div>
-                </div>
-
-                
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/monstera1 (1).jpeg" alt="Monstera Deliciosa">
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_monstera.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Monstera Deliciosa</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>(4.5)</span>
-                        </div>
-                        <div class="product-price">Rp 175.000</div>
-                    </div>
-                </div>
-
-                
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/Aspidistra elatior.jpg" alt="aspidistra">
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_aspidistra.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Philodendron Birkin</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <span>(4.0)</span>
-                        </div>
-                        <div class="product-price">Rp 75.000</div>
-                    </div>
-                </div>
-
-                
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/peperomia watermelon.jpg" alt="peperomia">
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_peperomia.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Peperomia Watermelon</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <span>(4.0)</span>
-                        </div>
-                        <div class="product-price">Rp 130.000</div>
-                    </div>
-                </div>
-
-              
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/zamioculcas.jpg" alt="zamioculcas">
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_zamioculcas.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Zamioculacas Zamiifolia</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <span>(4.0)</span>
-                        </div>
-                        <div class="product-price">Rp 99.000</div>
-                    </div>
-                </div>
-
-               
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="images/calateha roseopicta.jpg" alt="calateha roseopicta">
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_roseopicta.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Calathea Roseopictas</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <span>(4.0)</span>
-                        </div>
-                        <div class="product-price">Rp 98.000</div>
-                    </div>
-                </div>
-
-                
-                <div class="product-card">
-                    <span class="product-badge">Diskon</span>
-                    <div class="product-image">
-                        <img src="images/ficus.jpg" alt="ficus>
-                        <div class="product-actions">
-                            <a href="#" class="action-btn"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="detail_ficus.html" class="action-btn"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3><a href="#">Ficus Elastika</a></h3>
-                        <div class="product-category">Tanaman Hias Daun</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>(4.5)</span>
-                        </div>
-                        <div class="product-price">Rp 195.000</div>
-                    </div>
-                </div>
+                <?php endwhile; ?>
             </div>
         </div>
     </section>
 
-
+    <!-- Newsletter -->
     <section class="newsletter">
         <div class="container">
             <div class="newsletter-content">
@@ -312,7 +144,7 @@
                         <li><a href="index.php">Beranda</a></li>
                         <li><a href="produk.php">Produk</a></li>
                         <li><a href="kontak.php">Kontak</a></li>
-                        <li><a href="tentang-kami.php">Tentang Kami</a></li>
+                        <li><a href="tentang_kami.php">Tentang Kami</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">

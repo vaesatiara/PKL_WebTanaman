@@ -139,7 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
         'shipping_cost' => $shippingCost,
         'payment_method' => $payment_method,
         'total_amount' => $total_amount,
-        'order_items' => $orderData['items']
+        'order_items' => $orderData['items'],
+        'subtotal' => $orderData['subtotal']
     ];
     
     // Redirect ke halaman konfirmasi
@@ -156,6 +157,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
     <title>Metode Pembayaran - Toko Tanaman</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .payment-method-summary {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .payment-method-summary.show {
+            display: block;
+        }
+        
+        .payment-method-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .payment-method-logo {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .payment-method-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .payment-method-details h4 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .payment-method-details p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -210,13 +254,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                         <i class="fas fa-arrow-left"></i> Kembali ke Metode Pengiriman
                     </a>
                     
-                   
+                    <form id="paymentForm" action="" method="post">
+                        <!-- Hidden inputs untuk menyimpan data pesanan -->
+                        <input type="hidden" name="order_source" value="<?= htmlspecialchars($source) ?>">
+                        <?php if ($source === 'buy_now'): ?>
+                            <input type="hidden" name="product_id" value="<?= htmlspecialchars($product_id) ?>">
+                            <input type="hidden" name="quantity" value="<?= $quantity ?>">
+                        <?php endif; ?>
+                        <input type="hidden" name="shipping_address_id" value="<?= htmlspecialchars($shipping_address_id) ?>">
+                        <input type="hidden" name="shipping_method" value="<?= htmlspecialchars($selectedShipping) ?>">
+                        <input type="hidden" name="shipping_cost" value="<?= $shippingCost ?>">
+                        <input type="hidden" name="total_amount" value="<?= $total_amount ?>">
+                        <input type="hidden" name="payment_method" id="selectedPaymentMethod" value="">
                         
                         <div class="payment-group">
                             <h4>Transfer Bank</h4>
                             <div class="payment-options">
                                 <div class="payment-option">
-                                    <input type="radio" name="payment_method" id="bca" value="bca">
+                                    <input type="radio" name="payment_method_radio" id="bca" value="bca" data-name="Transfer Bank BCA" data-logo="images/bca.png">
                                     <label for="bca" class="payment-label">
                                         <div class="payment-logo">
                                             <img src="images/bca.png" alt="BCA">
@@ -229,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                                 </div>
                                 
                                 <div class="payment-option">
-                                    <input type="radio" name="payment_method" id="bni" value="bni">
+                                    <input type="radio" name="payment_method_radio" id="bni" value="bni" data-name="Transfer Bank BNI" data-logo="images/bni.png">
                                     <label for="bni" class="payment-label">
                                         <div class="payment-logo">
                                             <img src="images/bni.png" alt="BNI">
@@ -242,7 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                                 </div>
                                 
                                 <div class="payment-option">
-                                    <input type="radio" name="payment_method" id="mandiri" value="mandiri">
+                                    <input type="radio" name="payment_method_radio" id="mandiri" value="mandiri" data-name="Transfer Bank Mandiri" data-logo="images/mandiri.png">
                                     <label for="mandiri" class="payment-label">
                                         <div class="payment-logo">
                                             <img src="images/mandiri.png" alt="Mandiri">
@@ -260,7 +315,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                             <h4>E-Wallet</h4>
                             <div class="payment-options">
                                 <div class="payment-option">
-                                    <input type="radio" name="payment_method" id="gopay" value="gopay">
+                                    <input type="radio" name="payment_method_radio" id="gopay" value="gopay" data-name="GoPay" data-logo="images/gopay.png">
                                     <label for="gopay" class="payment-label">
                                         <div class="payment-logo">
                                             <img src="images/gopay.png" alt="GoPay">
@@ -273,7 +328,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                                 </div>
                                 
                                 <div class="payment-option">
-                                    <input type="radio" name="payment_method" id="ovo" value="ovo">
+                                    <input type="radio" name="payment_method_radio" id="ovo" value="ovo" data-name="OVO" data-logo="images/ovo.png">
                                     <label for="ovo" class="payment-label">
                                         <div class="payment-logo">
                                             <img src="images/ovo.png" alt="OVO">
@@ -286,7 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                                 </div>
                                 
                                 <div class="payment-option">
-                                    <input type="radio" name="payment_method" id="dana" value="dana">
+                                    <input type="radio" name="payment_method_radio" id="dana" value="dana" data-name="DANA" data-logo="images/dana.png">
                                     <label for="dana" class="payment-label">
                                         <div class="payment-logo">
                                             <img src="images/dana.png" alt="DANA">
@@ -299,8 +354,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                                 </div>
                             </div>
                         </div>
-                        
-                        
+                    </form>
                 </div>
                 
                 <!-- Order Summary - DIAMBIL DARI metode_pengiriman.php -->
@@ -311,7 +365,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                         <div class="summary-items">
                             <?php foreach ($orderData['items'] as $item): ?>
                             <div class="summary-item">
-                                <img src="uploads/<?= $item['foto'] ?>" alt="<?= $item['nama_tanaman'] ?>" class="item-image">
+                                <img src="uploads/<?= htmlspecialchars($item['foto']) ?>" alt="<?= htmlspecialchars($item['nama_tanaman']) ?>" class="item-image">
                                 <div class="item-info">
                                     <h3><?= htmlspecialchars($item['nama_tanaman']) ?></h3>
                                     <p><?= $item['jumlah'] ?> x Rp<?= number_format($item['harga'], 0, ',', '.') ?></p>
@@ -331,26 +385,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                             <span>Rp<?= number_format($shippingCost, 0, ',', '.') ?></span>
                         </div>
                         
+                        <!-- Payment Method Summary -->
+                        <div class="payment-method-summary" id="paymentMethodSummary">
+                            <div class="summary-row">
+                                <span>Metode Pembayaran</span>
+                                <span></span>
+                            </div>
+                            <div class="payment-method-info" id="paymentMethodInfo">
+                                <div class="payment-method-logo" id="paymentMethodLogo">
+                                    <img src="/placeholder.svg" alt="" id="paymentMethodImage">
+                                </div>
+                                <div class="payment-method-details">
+                                    <h4 id="paymentMethodName"></h4>
+                                    <p id="paymentMethodDesc"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="summary-row total">
                             <span>Total</span>
                             <span>Rp<?= number_format($total_amount, 0, ',', '.') ?></span>
                         </div>
 
-                        <form action="konfirmasi_pesanan.php" method="post">
-                        <!-- Hidden inputs untuk menyimpan data pesanan -->
-                        <input type="hidden" name="order_source" value="<?= $source ?>">
-                        <?php if ($source === 'buy_now'): ?>
-                            <input type="hidden" name="product_id" value="<?= $product_id ?>">
-                            <input type="hidden" name="quantity" value="<?= $quantity ?>">
-                        <?php endif; ?>
-                        <input type="hidden" name="shipping_address_id" value="<?= $shipping_address_id ?>">
-                        <input type="hidden" name="shipping_method" value="<?= $selectedShipping ?>">
-                        <input type="hidden" name="shipping_cost" value="<?= $shippingCost ?>">
-                        <input type="hidden" name="total_amount" value="<?= $total_amount ?>">
-                        <button type="submit" class="checkout-btn" id="paymentBtn" disabled>
+                        <button type="submit" form="paymentForm" class="checkout-btn" id="paymentBtn" disabled>
                             Lanjutkan ke Konfirmasi
                         </button>
-                    </form>
                     <?php else: ?>
                         <div class="empty-order">
                             <p>Tidak ada item dalam pesanan</p>
@@ -413,8 +472,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Get all payment options
-        const paymentOptions = document.querySelectorAll('.payment-option input');
+        const paymentOptions = document.querySelectorAll('.payment-option input[type="radio"]');
         const paymentBtn = document.getElementById('paymentBtn');
+        const paymentMethodSummary = document.getElementById('paymentMethodSummary');
+        const paymentMethodName = document.getElementById('paymentMethodName');
+        const paymentMethodImage = document.getElementById('paymentMethodImage');
+        const paymentMethodDesc = document.getElementById('paymentMethodDesc');
+        const selectedPaymentMethod = document.getElementById('selectedPaymentMethod');
+        
+        // Payment method descriptions
+        const paymentDescriptions = {
+            'bca': 'Transfer melalui Bank BCA',
+            'bni': 'Transfer melalui Bank BNI',
+            'mandiri': 'Transfer melalui Bank Mandiri',
+            'gopay': 'Pembayaran melalui aplikasi Gojek',
+            'ovo': 'Pembayaran melalui aplikasi OVO',
+            'dana': 'Pembayaran melalui aplikasi DANA'
+        };
         
         // Add event listeners to each payment option
         paymentOptions.forEach(option => {
@@ -424,6 +498,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_method'])) {
                     opt.classList.remove('selected');
                 });
                 this.closest('.payment-option').classList.add('selected');
+                
+                // Update payment method summary
+                const paymentValue = this.value;
+                const paymentName = this.getAttribute('data-name');
+                const paymentLogo = this.getAttribute('data-logo');
+                
+                // Show payment method summary
+                paymentMethodSummary.classList.add('show');
+                
+                // Update payment method details
+                paymentMethodName.textContent = paymentName;
+                paymentMethodImage.src = paymentLogo;
+                paymentMethodImage.alt = paymentName;
+                paymentMethodDesc.textContent = paymentDescriptions[paymentValue] || '';
+                
+                // Set hidden input value
+                selectedPaymentMethod.value = paymentValue;
                 
                 // Enable submit button when payment method is selected
                 paymentBtn.disabled = false;

@@ -258,7 +258,7 @@ $produk=mysqli_fetch_assoc($query);
                 <!-- Product Gallery -->
                 <div class="product-gallery">
                     <div class="main-image">
-                        <img src="uploads/<?php echo htmlspecialchars($produk['foto']); ?>" alt="<?php echo htmlspecialchars($produk['nama_tanaman']); ?>">
+                        <img src="/admin/Admin_WebTanaman/uploads/<?php echo htmlspecialchars($produk['foto']); ?>" alt="<?php echo htmlspecialchars($produk['nama_tanaman']); ?>">
                     </div>
                 </div>
 

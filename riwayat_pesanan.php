@@ -2,134 +2,164 @@
 session_start();
 include "koneksi.php";
 
-// Fungsi untuk mendapatkan data pesanan
-function getOrderData($source = 'cart', $product_id = null, $quantity = 1) {
-    global $koneksi;
-    $orderItems = [];
-    $totalHarga = 0;
+// Periksa apakah user sudah login
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// Fungsi untuk mendapatkan ID pelanggan yang valid
+function getValidCustomerId($koneksi) {
+    $possible_session_keys = ['id_pelanggan', 'user_id', 'customer_id', 'pelanggan_id'];
     
-    if ($source === 'cart') {
-        // Ambil dari keranjang
-        if (isset($_SESSION['keranjang']) && !empty($_SESSION['keranjang'])) {
-            foreach ($_SESSION['keranjang'] as $id_produk => $jumlah) {
-                if (empty($id_produk)) continue;
-                
-                $query = $koneksi->query("SELECT * FROM produk WHERE id_produk='$id_produk'");
-                $produk = $query->fetch_assoc();
-                
-                if ($produk) {
-                    $subtotal = $produk['harga'] * $jumlah;
-                    $orderItems[] = [
-                        'id_produk' => $id_produk,
-                        'nama_tanaman' => $produk['nama_tanaman'],
-                        'harga' => $produk['harga'],
-                        'foto' => $produk['foto'],
-                        'jumlah' => $jumlah,
-                        'subtotal' => $subtotal
-                    ];
-                    $totalHarga += $subtotal;
-                }
+    foreach ($possible_session_keys as $key) {
+        if (isset($_SESSION[$key]) && !empty($_SESSION[$key])) {
+            $id = $_SESSION[$key];
+            
+            $query = $koneksi->query("SELECT id_pelanggan FROM pelanggan WHERE id_pelanggan = '$id'");
+            if ($query && $query->num_rows > 0) {
+                return $id;
             }
         }
-    } else if ($source === 'buy_now' && $product_id) {
-        // Ambil dari beli sekarang
-        $query = $koneksi->query("SELECT * FROM produk WHERE id_produk='$product_id'");
-        $produk = $query->fetch_assoc();
-        
-        if ($produk) {
-            $subtotal = $produk['harga'] * $quantity;
-            $orderItems[] = [
-                'id_produk' => $product_id,
-                'nama_tanaman' => $produk['nama_tanaman'],
-                'harga' => $produk['harga'],
-                'foto' => $produk['foto'],
-                'jumlah' => $quantity,
-                'subtotal' => $subtotal
-            ];
-            $totalHarga = $subtotal;
+    }
+    
+    if (isset($_SESSION['username'])) {
+        $username = $_SESSION['username'];
+        $query = $koneksi->query("SELECT id_pelanggan FROM pelanggan WHERE username = '$username' OR email = '$username'");
+        if ($query && $query->num_rows > 0) {
+            $row = $query->fetch_assoc();
+            return $row['id_pelanggan'];
         }
     }
     
-    return [
-        'items' => $orderItems,
-        'subtotal' => $totalHarga
-    ];
+    return null;
 }
 
-// Fungsi untuk mendapatkan alamat pengiriman yang dipilih
-function getSelectedAddress() {
-    global $koneksi;
-    
-    // Jika ada alamat yang dipilih dari form sebelumnya
-    if (isset($_POST['selected_address_id'])) {
-        $address_id = $_POST['selected_address_id'];
-        $query = $koneksi->query("SELECT * FROM pengiriman WHERE id_pengiriman='$address_id'");
-        return $query->fetch_assoc();
-    }
-    
-    // Jika tidak ada, ambil alamat default atau yang pertama
-    $query = $koneksi->query("SELECT * FROM pengiriman ORDER BY id_pengiriman DESC LIMIT 1");
-    return $query->fetch_assoc();
+// Dapatkan ID pelanggan yang valid
+$id_pelanggan = getValidCustomerId($koneksi);
+
+if (!$id_pelanggan) {
+    die("Error: ID pelanggan tidak ditemukan. Silakan login ulang.");
 }
 
-// Fungsi untuk menghitung biaya pengiriman berdasarkan metode
-function getShippingCost($method = 'jne') {
-    $shippingCosts = [
-        'jne' => 25000,
-        'jnt' => 30000,
-        'ninja' => 28000,
-        'anteraja' => 26000
-    ];
-    
-    return isset($shippingCosts[$method]) ? $shippingCosts[$method] : 25000;
-}
-
-// Fungsi untuk mendapatkan nama metode pengiriman
-function getShippingName($method = 'jne') {
-    $shippingNames = [
-        'jne' => 'JNE Regular',
-        'jnt' => 'J&T Express',
-        'ninja' => 'Ninja Xpress',
-        'anteraja' => 'AnterAja Regular'
-    ];
-    
-    return isset($shippingNames[$method]) ? $shippingNames[$method] : 'JNE Regular';
-}
-
-// Tentukan sumber data berdasarkan parameter
-$source = isset($_GET['source']) ? $_GET['source'] : (isset($_POST['order_source']) ? $_POST['order_source'] : 'cart');
-$product_id = isset($_GET['id_produk']) ? $_GET['id_produk'] : (isset($_POST['product_id']) ? $_POST['product_id'] : null);
-$quantity = isset($_GET['qty']) ? (int)$_GET['qty'] : (isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1);
-
-// Ambil data pesanan
-$orderData = getOrderData($source, $product_id, $quantity);
-
-// Ambil alamat pengiriman yang dipilih
-$shippingAddress = getSelectedAddress();
-
-// Tentukan metode pengiriman (default atau dari form)
-$selectedShipping = isset($_POST['shipping_method']) ? $_POST['shipping_method'] : 'jne';
-$shippingCost = getShippingCost($selectedShipping);
-$shippingName = getShippingName($selectedShipping);
-
-// Hitung total
-$total = $orderData['subtotal'] + $shippingCost;
-
-// Proses jika form metode pengiriman disubmit
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_shipping'])) {
-    $selectedShipping = $_POST['shipping_method'];
-    $shippingCost = getShippingCost($selectedShipping);
-    $shippingName = getShippingName($selectedShipping);
-    $total = $orderData['subtotal'] + $shippingCost;
-
-
-}
+// Ambil data pelanggan
 $username = $_SESSION['username'];
-$sql = "SELECT * FROM pelanggan WHERE username= '$username'";
+$sql = "SELECT * FROM pelanggan WHERE username = '$username'";
 $query = mysqli_query($koneksi, $sql);
 $pelanggan = mysqli_fetch_assoc($query);
 
+// Filter status pesanan
+$status_filter = isset($_GET['status']) ? $_GET['status'] : 'all';
+
+// Query untuk mengambil riwayat pesanan
+$sql_orders = "
+    SELECT 
+        id_pesanan,
+        nomor_pesanan,
+        tgl_pesanan,
+        total,
+        status_pesanan
+    FROM pesanan 
+    WHERE id_pelanggan = '$id_pelanggan'
+";
+
+// Tambahkan filter status jika diperlukan
+if ($status_filter !== 'all') {
+    $sql_orders .= " AND status_pesanan = '$status_filter'";
+}
+
+$sql_orders .= " ORDER BY tgl_pesanan DESC";
+
+// Query langsung tanpa prepared statement
+$result_orders = $koneksi->query($sql_orders);
+
+// Fungsi untuk mendapatkan status badge class
+function getStatusBadgeClass($status) {
+    switch ($status) {
+        case 'diproses':
+            return 'status-processing';
+        case 'menunggu_verifikasi':
+            return 'status-pending';
+        case 'diverifikasi':
+            return 'status-verified';
+        case 'dikirim':
+            return 'status-shipped';
+        case 'selesai':
+            return 'status-completed';
+        case 'dibatalkan':
+            return 'status-cancelled';
+        default:
+            return 'status-pending';
+    }
+}
+
+// Fungsi untuk mendapatkan nama status yang user-friendly
+function getStatusName($status) {
+    switch ($status) {
+        case 'diproses':
+            return 'Belum Dibayar';
+        case 'menunggu_verifikasi':
+            return 'Menunggu Verifikasi';
+        case 'diverifikasi':
+            return 'Sedang Diproses';
+        case 'dikirim':
+            return 'Dikirim';
+        case 'selesai':
+            return 'Selesai';
+        case 'dibatalkan':
+            return 'Dibatalkan';
+        default:
+            return ucfirst($status);
+    }
+}
+
+// Fungsi untuk mendapatkan produk pesanan
+function getOrderProducts($koneksi, $id_pesanan) {
+    $products = [];
+    
+    // Coba beberapa cara untuk mendapatkan produk pesanan
+    // Cara 1: Jika ada relasi langsung di tabel pesanan
+    $query1 = $koneksi->query("SELECT p.* FROM produk p 
+                              JOIN pesanan ps ON p.id_produk = ps.id_produk 
+                              WHERE ps.id_pesanan = '$id_pesanan'");
+    
+    if ($query1 && $query1->num_rows > 0) {
+        while ($row = $query1->fetch_assoc()) {
+            $products[] = $row;
+        }
+        return $products;
+    }
+    
+    // Cara 2: Jika ada tabel detail_pesanan
+    $query2 = $koneksi->query("SELECT p.* FROM produk p 
+                              JOIN detail_pesanan dp ON p.id_produk = dp.id_produk 
+                              WHERE dp.id_pesanan = '$id_pesanan'");
+    
+    if ($query2 && $query2->num_rows > 0) {
+        while ($row = $query2->fetch_assoc()) {
+            $products[] = $row;
+        }
+        return $products;
+    }
+    
+    // Cara 3: Jika produk disimpan dalam kolom terpisah di tabel pesanan
+    $query3 = $koneksi->query("SELECT nama_produk, foto_produk, harga_produk FROM pesanan WHERE id_pesanan = '$id_pesanan'");
+    
+    if ($query3 && $query3->num_rows > 0) {
+        $row = $query3->fetch_assoc();
+        if (!empty($row['nama_produk'])) {
+            $products[] = [
+                'nama_tanaman' => $row['nama_produk'],
+                'foto' => $row['foto_produk'] ?? 'default.jpg',
+                'harga' => $row['harga_produk'] ?? 0
+            ];
+        }
+    }
+    
+    return $products;
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -138,26 +168,216 @@ $pelanggan = mysqli_fetch_assoc($query);
     <title>Riwayat Pesanan - Toko Tanaman</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .status-processing { background-color: #fff3cd; color: #856404; }
+        .status-pending { background-color: #f8d7da; color: #721c24; }
+        .status-verified { background-color: #d1ecf1; color: #0c5460; }
+        .status-shipped { background-color: #d4edda; color: #155724; }
+        .status-completed { background-color: #d4edda; color: #155724; }
+        .status-cancelled { background-color: #f8d7da; color: #721c24; }
+        
+        .order-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .tab-btn.active, .tab-btn:hover {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .empty-orders {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-orders i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+        
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: white;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-info p {
+            margin: 2px 0;
+            font-size: 14px;
+        }
+        
+        .order-date {
+            color: #666;
+        }
+        
+        .order-number {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .order-items {
+            padding: 15px 20px;
+        }
+        
+        .order-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .order-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .order-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+        
+        .item-details h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .item-details p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            background-color: #f8f9fa;
+        }
+        
+        .order-total {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .total-amount {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px solid;
+            cursor: pointer;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #666;
+            border-color: #ddd;
+        }
+        
+        .btn-outline:hover {
+            background: #f8f9fa;
+        }
+        
+        .btn-primary {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .btn-primary:hover {
+            background: #218838;
+        }
+        
+        .more-items {
+            padding: 10px 0;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .status-info {
+            padding: 10px 20px;
+            background-color: #e8f5e8;
+            border-left: 4px solid #28a745;
+            margin: 10px 0;
+        }
+        
+        .status-info.processing {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        
+        .status-info.verified {
+            background-color: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="container">
             <div class="logo">
-                <a href="index.html">
+                <a href="index.php">
                     <img src="images/logo.png" alt="Toko Tanaman">
                 </a>
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html">BERANDA</a></li>
-                    <li><a href="produk.html">PRODUK</a></li>
-                    <li><a href="kontak.html">KONTAK</a></li>
-                    <li><a href="tentang.html">TENTANG KAMI</a></li>
+                    <li><a href="index.php">BERANDA</a></li>
+                    <li><a href="produk.php">PRODUK</a></li>
+                    <li><a href="kontak.php">KONTAK</a></li>
+                    <li><a href="tentang_kami.php">TENTANG KAMI</a></li>
                 </ul>
             </nav>
             <div class="icons">
-                <a href="keranjang.html"><i class="fas fa-shopping-cart"></i></a>
-                <a href="profil.html" class="active"><i class="fas fa-user"></i></a>
+                <a href="keranjang.php"><i class="fas fa-shopping-cart"></i></a>
+                <a href="profil.php" class="active"><i class="fas fa-user"></i></a>
             </div>
         </div>
     </header>
@@ -168,37 +388,37 @@ $pelanggan = mysqli_fetch_assoc($query);
                 <div class="profile-sidebar">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="images/user.jpg" alt="Budi Santoso">
+                            <img src="images/user.jpg" alt="<?= htmlspecialchars($pelanggan['username']) ?>">
                         </div>
                         <div class="profile-info">
-                            <h2><?=$pelanggan['username']?></h2>
-                            <p><?=$pelanggan['email']?></p>
+                            <h2><?= htmlspecialchars($pelanggan['username']) ?></h2>
+                            <p><?= htmlspecialchars($pelanggan['email']) ?></p>
                         </div>
                     </div>
                     <div class="profile-nav">
                         <ul>
                             <li>
-                                <a href="profil.html">
+                                <a href="profil.php">
                                     <i class="fas fa-user"></i> Profil Saya
                                 </a>
                             </li>
                             <li class="active">
-                                <a href="riwayat_pesanan.html">
+                                <a href="riwayat_pesanan.php">
                                     <i class="fas fa-shopping-bag"></i> Riwayat Pesanan
                                 </a>
                             </li>
                             <li>
-                                <a href="alamat_tersimpan.html">
+                                <a href="alamat_tersimpan.php">
                                     <i class="fas fa-map-marker-alt"></i> Alamat Tersimpan
                                 </a>
                             </li>
                             <li>
-                                <a href="ubah_password.html">
+                                <a href="ubah_password.php">
                                     <i class="fas fa-lock"></i> Ubah Password
                                 </a>
                             </li>
                             <li>
-                                <a href="login.html" class="logout">
+                                <a href="logout.php" class="logout">
                                     <i class="fas fa-sign-out-alt"></i> Logout
                                 </a>
                             </li>
@@ -212,93 +432,115 @@ $pelanggan = mysqli_fetch_assoc($query);
                     </div>
                     
                     <div class="order-tabs">
-                        <button class="tab-btn active">Semua</button>
-                        <button class="tab-btn">Belum Dibayar</button>
-                        <button class="tab-btn">Diproses</button>
-                        <button class="tab-btn">Dikirim</button>
-                        <button class="tab-btn">Selesai</button>
-                        <button class="tab-btn">Dibatalkan</button>
+                        <a href="?status=all" class="tab-btn <?= $status_filter === 'all' ? 'active' : '' ?>">Semua</a>
+                        <a href="?status=diproses" class="tab-btn <?= $status_filter === 'diproses' ? 'active' : '' ?>">Belum Dibayar</a>
+                        <a href="?status=diverifikasi" class="tab-btn <?= $status_filter === 'diverifikasi' ? 'active' : '' ?>">Sedang Diproses</a>
+                        <a href="?status=dikirim" class="tab-btn <?= $status_filter === 'dikirim' ? 'active' : '' ?>">Dikirim</a>
+                        <a href="?status=selesai" class="tab-btn <?= $status_filter === 'selesai' ? 'active' : '' ?>">Selesai</a>
+                        <a href="?status=dibatalkan" class="tab-btn <?= $status_filter === 'dibatalkan' ? 'active' : '' ?>">Dibatalkan</a>
                     </div>
                     
                     <div class="order-list">
-                        <div class="order-card">
-                            <div class="order-header">
-                                <div class="order-info">
-                                    <p class="order-date">22 Mei 2023</p>
-                                    <p class="order-number">INV/20230522/MPL/1234567</p>
-                                </div>
-                                <div class="order-status">
-                                    <span class="status-badge status-completed">Selesai</span>
-                                </div>
-                            </div>
-                            <div class="order-items">
-                                <div class="order-item">
-                                         
-                        <div class="summary-items">
-                            <?php foreach ($orderData['items'] as $item): ?>
-                            <div class="summary-item">
-                                <img src="uploads/<?= $item['foto'] ?>" alt="<?= $item['nama_tanaman'] ?>" class="item-image">
-                                <div class="item-info">
-                                    <h3><?= htmlspecialchars($item['nama_tanaman']) ?></h3>
-                                    <p><?= $item['jumlah'] ?> x Rp<?= number_format($item['harga'], 0, ',', '.') ?></p>
-                                </div>
-                                <div class="item-price">Rp<?= number_format($item['subtotal'], 0, ',', '.') ?></div>
-                            </div>
-                            <?php endforeach; ?>
-                        
-                        </div>
+                        <?php if ($result_orders && $result_orders->num_rows > 0): ?>
+                            <?php while ($pesanan = $result_orders->fetch_assoc()): ?>
+                                <div class="order-card">
+                                    <div class="order-header">
+                                        <div class="order-info">
+                                            <p class="order-date"><?= date('d M Y', strtotime($pesanan['tgl_pesanan'])) ?></p>
+                                            <p class="order-number"><?= htmlspecialchars($pesanan['nomor_pesanan']) ?></p>
+                                        </div>
+                                        <div class="order-status">
+                                            <span class="status-badge <?= getStatusBadgeClass($pesanan['status_pesanan']) ?>">
+                                                <?= getStatusName($pesanan['status_pesanan']) ?>
+                                            </span>
+                                        </div>
+                                    </div>
                                     
+                                    <?php if ($pesanan['status_pesanan'] === 'diverifikasi'): ?>
+                                    <div class="status-info verified">
+                                        <p><i class="fas fa-check-circle"></i> Pembayaran telah dikonfirmasi. Pesanan sedang diproses dan akan segera dikirim.</p>
+                                    </div>
+                                    <?php elseif ($pesanan['status_pesanan'] === 'diproses'): ?>
+                                    <div class="status-info processing">
+                                        <p><i class="fas fa-clock"></i> Menunggu pembayaran. Silakan lakukan pembayaran untuk melanjutkan pesanan.</p>
+                                    </div>
+                                    <?php endif; ?>
+
+                                    <?php
+                                    // Ambil data produk dari tabel pesanan
+                                    $id_pesanan_current = $pesanan['id_pesanan'];
+                                    $products = getOrderProducts($koneksi, $id_pesanan_current);
+                                    ?>
+
+                                    <div class="order-items">
+                                        <?php
+                                        if ($products && count($products) > 0) {
+                                            $index = 0;
+                                            foreach ($products as $produk) {
+                                                if ($index < 3) { // Tampilkan maksimal 3 item
+                                        ?>
+                                                    <div class="order-item">
+                                                        <img src="uploads/<?= htmlspecialchars($produk['foto']) ?>" 
+                                                            alt="<?= htmlspecialchars($produk['nama_tanaman']) ?>"
+                                                            onerror="this.src='images/default-product.jpg'">
+                                                        <div class="item-details">
+                                                            <h3><?= htmlspecialchars($produk['nama_tanaman']) ?></h3>
+                                                            <p>1 x Rp<?= number_format($produk['harga'], 0, ',', '.') ?></p>
+                                                        </div>
+                                                    </div>
+                                        <?php
+                                                    $index++;
+                                                }
+                                            }
+                                            
+                                            if (count($products) > 3) {
+                                        ?>
+                                            <div class="more-items">
+                                                <p>+<?= count($products) - 3 ?> produk lainnya</p>
+                                            </div>
+                                        <?php
+                                            }
+                                        } else {
+                                        ?>
+                                            <div class="order-item">
+                                                <div class="item-details">
+                                                    <h3>Pesanan #<?= htmlspecialchars($pesanan['nomor_pesanan']) ?></h3>
+                                                    <p>Detail produk akan ditampilkan setelah pembayaran</p>
+                                                </div>
+                                            </div>
+                                        <?php
+                                        }
+                                        ?>
+                                    </div>
+                                    
+                                    <div class="order-footer">
+                                        <div class="order-total">
+                                            Total Pesanan: <span class="total-amount">Rp<?= number_format($pesanan['total'], 0, ',', '.') ?></span>
+                                        </div>
+                                        <div class="order-actions">
+                                            <a href="detail_pesanan.php?id_pesanan=<?= $pesanan['id_pesanan'] ?>" class="btn btn-outline">Detail Pesanan</a>
+                                            
+                                            <?php if ($pesanan['status_pesanan'] === 'diproses'): ?>
+                                                <a href="konfirmasi_pembayaran.php?order_id=<?= $pesanan['id_pesanan'] ?>" class="btn btn-primary">Bayar Sekarang</a>
+                                            <?php elseif ($pesanan['status_pesanan'] === 'diverifikasi'): ?>
+                                                <span class="btn btn-outline" style="background-color: #d1ecf1; color: #0c5460;">Sedang Diproses</span>
+                                            <?php elseif ($pesanan['status_pesanan'] === 'dikirim'): ?>
+                                                <a href="lacak_pengiriman.php?id_pesanan=<?= $pesanan['id_pesanan'] ?>" class="btn btn-outline">Lacak Pengiriman</a>
+                                            <?php elseif ($pesanan['status_pesanan'] === 'selesai'): ?>
+                                                <a href="produk.php" class="btn btn-primary">Beli Lagi</a>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
-                                
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <div class="empty-orders">
+                                <i class="fas fa-shopping-bag"></i>
+                                <h3>Belum Ada Pesanan</h3>
+                                <p>Anda belum memiliki riwayat pesanan. Mulai berbelanja sekarang!</p>
+                                <a href="produk.php" class="btn btn-primary" style="margin-top: 20px;">Mulai Belanja</a>
                             </div>
-                            <div class="order-footer">
-                                <div class="order-total">
-                                    Total Pesanan: <span >Rp<?= number_format($total, 0, ',', '.') ?></span>
-                                </div>
-                                <div class="order-actions">
-                                    <a href="detail_pesanan.php?id_pesanan=<?=$pesanan['id_pesanan'] ?>" class="btn btn-outline">Detail Pesanan</a>
-                                    <a href="#" class="btn btn-primary">Beli Lagi</a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="order-card">
-                            <div class="order-header">
-                                <div class="order-info">
-                                    <p class="order-date">15 Mei 2023</p>
-                                    <p class="order-number">INV/20230515/MPL/7654321</p>
-                                </div>
-                                <div class="order-status">
-                                    <span class="status-badge status-shipped">Dikirim</span>
-                                </div>
-                            </div>
-                            <div class="order-items">
-                                <div class="order-item">
-                                    <img src="images/daun1.jpg" alt="Fiddle Fig">
-                                    <div class="item-details">
-                                        <h3>Fiddle Fig</h3>
-                                        <p>1 x Rp250.000</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="order-footer">
-                                <div class="order-total">
-                                    Total Pesanan: <span class="total-amount">Rp250.000</span>
-                                </div>
-                                <div class="order-actions">
-                                    <a href="#" class="btn btn-outline">Detail Pesanan</a>
-                                    <a href="#" class="btn btn-outline">Lacak Pengiriman</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="pagination">
-                        <button class="page-btn active">1</button>
-                        <button class="page-btn">2</button>
-                        <button class="page-btn">3</button>
-                        <button class="page-btn next">Selanjutnya <i class="fas fa-chevron-right"></i></button>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -315,17 +557,17 @@ $pelanggan = mysqli_fetch_assoc($query);
                 <div class="footer-links">
                     <h3 class="footer-title">Tautan Cepat</h3>
                     <ul>
-                        <li><a href="index.html">BERANDA</a></li>
-                        <li><a href="produk.html">PRODUK</a></li>
-                        <li><a href="kontak.html">KONTAK</a></li>
-                        <li><a href="tentang.html">TENTANG KAMI</a></li>
+                        <li><a href="index.php">BERANDA</a></li>
+                        <li><a href="produk.php">PRODUK</a></li>
+                        <li><a href="kontak.php">KONTAK</a></li>
+                        <li><a href="tentang_kami.php">TENTANG KAMI</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
                     <h3 class="footer-title">Kategori</h3>
                     <ul>
-                        <li><a href="tanaman_hias_daun.html">Tanaman Hias Daun</a></li>
-                        <li><a href="tanaman_hias_bunga.html">Tanaman Hias Bunga</a></li>
+                        <li><a href="tanaman_hias_daun.php">Tanaman Hias Daun</a></li>
+                        <li><a href="tanaman_hias_bunga.php">Tanaman Hias Bunga</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
@@ -341,6 +583,11 @@ $pelanggan = mysqli_fetch_assoc($query);
         </div>
     </footer>
 
-    <script src="js/script.js"></script>
+    <script>
+        // Auto refresh halaman setiap 30 detik untuk update status pesanan
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
 </body>
 </html>

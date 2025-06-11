@@ -7,7 +7,7 @@ $file_image=  $_FILES['file_image']['name'];
 $tmp = $_FILES['file_image']['tmp_name'];
 $catatan = $_POST['catatan'];
 
-move_uploaded_file($tmp, "uploads/".$file_image);
+move_uploaded_file($tmp, "images/".$file_image);
 
     $sql = "INSERT INTO pembayaran (tgl_bayar, waktu_bayar, file_image, catatan )
             VALUES ('$tgl_bayaran', '$waktu_bayar', '$file_images', '$catatan')";

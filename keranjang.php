@@ -157,6 +157,8 @@ if(isset($_GET['id_produk'])) {
                 </div>
                 
                 <div class="order-summary">
+                      
+                    <h2 class="summary-title">Ringkasan Pesanan</h2>
                     
                     
                     <div class="summary-row">
@@ -176,6 +178,7 @@ if(isset($_GET['id_produk'])) {
                     ?>
                     
                     <div class="summary-row">
+                        
                         <span>Estimasi Pengiriman</span>
                         <span>Rp <?php echo number_format($biayaPengiriman, 0, ',', '.'); ?></span>
                     </div>

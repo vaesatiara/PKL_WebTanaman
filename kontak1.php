@@ -31,7 +31,7 @@
                 <a href="profil.php"><i class="fas fa-user"></i></a>
                  <a href="logout.php"> <i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
-            <?
+            
             <?php endif;?>
         </div>
     </header>

@@ -2,15 +2,6 @@
 session_start();
 include "koneksi.php";
 
-// Cek login
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php?login_dulu");
-    exit;
-}
-
-$id_pelanggan = $_SESSION['id_pelanggan'] ?? '';
-$username = $_SESSION['username'];
-
 // Fungsi untuk mendapatkan data pesanan
 function getOrderData($source = 'cart', $product_id = null, $quantity = 1) {
     global $koneksi;
@@ -18,6 +9,7 @@ function getOrderData($source = 'cart', $product_id = null, $quantity = 1) {
     $totalHarga = 0;
     
     if ($source === 'cart') {
+        // Ambil dari keranjang
         if (isset($_SESSION['keranjang']) && !empty($_SESSION['keranjang'])) {
             foreach ($_SESSION['keranjang'] as $id_produk => $jumlah) {
                 if (empty($id_produk)) continue;
@@ -40,6 +32,7 @@ function getOrderData($source = 'cart', $product_id = null, $quantity = 1) {
             }
         }
     } else if ($source === 'buy_now' && $product_id) {
+        // Ambil dari beli sekarang
         $query = $koneksi->query("SELECT * FROM produk WHERE id_produk='$product_id'");
         $produk = $query->fetch_assoc();
         
@@ -57,60 +50,79 @@ function getOrderData($source = 'cart', $product_id = null, $quantity = 1) {
         }
     }
     
-    return [
+    // Simpan data pesanan ke session untuk persistensi
+    $_SESSION['order_data'] = [
         'items' => $orderItems,
         'subtotal' => $totalHarga,
-        'shipping' => 25000,
-        'total' => $totalHarga + 25000
+        'source' => $source,
+        'product_id' => $product_id,
+        'quantity' => $quantity
+    ];
+    
+    return [
+        'items' => $orderItems,
+        'subtotal' => $totalHarga
     ];
 }
 
-// Proses pemilihan alamat
-if (isset($_POST['pilih_alamat'])) {
-    $_SESSION['alamat_terpilih'] = $_POST['alamat_id'];
-}
+// Tentukan sumber data berdasarkan parameter
+$source = isset($_GET['source']) ? $_GET['source'] : (isset($_POST['order_source']) ? $_POST['order_source'] : (isset($_SESSION['order_data']['source']) ? $_SESSION['order_data']['source'] : 'cart'));
+$product_id = isset($_GET['id_produk']) ? $_GET['id_produk'] : (isset($_POST['product_id']) ? $_POST['product_id'] : (isset($_SESSION['order_data']['product_id']) ? $_SESSION['order_data']['product_id'] : null));
+$quantity = isset($_GET['qty']) ? (int)$_GET['qty'] : (isset($_POST['quantity']) ? (int)$_POST['quantity'] : (isset($_SESSION['order_data']['quantity']) ? $_SESSION['order_data']['quantity'] : 1));
 
-// Proses penambahan alamat baru
-if (isset($_POST['tambah_alamat'])) {
-    $label_alamat = mysqli_real_escape_string($koneksi, $_POST['label_alamat']);
-    $nama_penerima = mysqli_real_escape_string($koneksi, $_POST['nama_penerima']);
-    $no_telepon = mysqli_real_escape_string($koneksi, $_POST['no_telepon']);
-    $provinsi = mysqli_real_escape_string($koneksi, $_POST['provinsi']);
-    $kota = mysqli_real_escape_string($koneksi, $_POST['kota']);
-    $kecamatan = mysqli_real_escape_string($koneksi, $_POST['kecamatan']);
-    $alamat_lengkap = mysqli_real_escape_string($koneksi, $_POST['alamat_lengkap']);
-    $is_primary = isset($_POST['is_primary']) ? 1 : 0;
-    
-    // Jika dijadikan alamat utama, update alamat lain
-   
-    
-    $insert_sql = "INSERT INTO pengiriman (id_pelanggan, label_alamat, nama_penerima, no_telepon, provinsi, kota, kecamatan, alamat_lengkap, is_primary) 
-                   VALUES ('$id_pelanggan', '$label_alamat', '$nama_penerima', '$no_telepon', '$provinsi', '$kota', '$kecamatan', '$alamat_lengkap', '$is_primary')";
-    
-    if (mysqli_query($koneksi, $insert_sql)) {
-        $new_id = mysqli_insert_id($koneksi);
-        $_SESSION['alamat_terpilih'] = $new_id;
-        $_SESSION['success_message'] = "Alamat berhasil ditambahkan dan dipilih!";
-    } else {
-        $_SESSION['error_message'] = "Terjadi kesalahan saat menambahkan alamat.";
-    }
-}
-
-// Ambil data alamat tersimpan
-$sql_alamat="SELECT * FROM pengiriman";
-$query_alamat = mysqli_query($koneksi, $sql_alamat);
-$alamat=mysqli_fetch_assoc($query_alamat);
-
-// Tentukan sumber data pesanan
-$source = isset($_GET['source']) ? $_GET['source'] : 'cart';
-$product_id = isset($_GET['id_produk']) ? $_GET['id_produk'] : null;
-$quantity = isset($_GET['qty']) ? (int)$_GET['qty'] : 1;
-
-if (isset($_GET['direct_buy']) && $_GET['direct_buy'] == 1) {
-    $source = 'buy_now';
-}
-
+// Ambil data pesanan
 $orderData = getOrderData($source, $product_id, $quantity);
+
+// Fungsi untuk menghitung biaya pengiriman berdasarkan metode
+function getShippingCost($method = 'jne') {
+    $shippingCosts = [
+        'jne' => 25000,
+        'jnt' => 30000,
+        'ninja' => 28000,
+        'anteraja' => 26000
+    ];
+    
+    return isset($shippingCosts[$method]) ? $shippingCosts[$method] : 25000;
+}
+
+// Fungsi untuk mendapatkan nama metode pengiriman
+function getShippingName($method = 'jne') {
+    $shippingNames = [
+        'jne' => 'JNE Regular',
+        'jnt' => 'J&T Express',
+        'ninja' => 'Ninja Xpress',
+        'anteraja' => 'AnterAja Regular'
+    ];
+    
+    return isset($shippingNames[$method]) ? $shippingNames[$method] : 'JNE Regular';
+}
+
+// Tentukan metode pengiriman (default atau dari session)
+$selectedShipping = isset($_SESSION['shipping_method']) ? $_SESSION['shipping_method'] : 'jne';
+$shippingCost = getShippingCost($selectedShipping);
+$shippingName = getShippingName($selectedShipping);
+
+// Hitung total
+$total = $orderData['subtotal'] + $shippingCost;
+
+// Proses jika alamat dipilih
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pilih_alamat'])) {
+    $selected_address_id = $_POST['alamat_id'];
+    $_SESSION['alamat_terpilih'] = $selected_address_id;
+    
+    // Simpan data pesanan ke session
+    $_SESSION['order_data']['shipping_address_id'] = $selected_address_id;
+    $_SESSION['order_data']['shipping_method'] = $selectedShipping;
+    $_SESSION['order_data']['shipping_cost'] = $shippingCost;
+    $_SESSION['order_data']['total'] = $total;
+    
+    // Redirect ke halaman metode pengiriman
+    header("Location: metode_pengiriman.php");
+    exit;
+}
+
+$sql_alamat = "SELECT * FROM pengiriman";
+$query_alamat = mysqli_query($koneksi, $sql_alamat);
 ?>
 
 <!DOCTYPE html>
@@ -201,6 +213,41 @@ $orderData = getOrderData($source, $product_id, $quantity);
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        
+        .badge-primary {
+            background: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .address-actions {
+            margin-top: 10px;
+        }
+        
+        .address-actions .btn {
+            margin-right: 5px;
+        }
+        
+        .use-address-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .use-address-btn:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -241,7 +288,6 @@ $orderData = getOrderData($source, $product_id, $quantity);
                     <div class="step-number">3</div>
                     <div class="step-label">Pembayaran</div>
                 </div>
-                
             </div>
             
             <div class="checkout-content">
@@ -264,82 +310,87 @@ $orderData = getOrderData($source, $product_id, $quantity);
                     </div>
                     <?php endif; ?>
                     
-                    <div class="address-selection">
-                        <h3>Alamat Tersimpan</h3>
-                        
-                       
-                            <form method="POST" id="alamatForm">
+                     <div class="address-list">
+                        <?php if ($query_alamat && mysqli_num_rows($query_alamat) > 0) :  ?>
+                            <?php while($alamat = mysqli_fetch_assoc($query_alamat)): ?>
+                            <form method="POST" class="address-form-select" id="form_<?= $alamat['id_pengiriman'] ?>">
+                                <input type="hidden" name="alamat_id" value="<?= $alamat['id_pengiriman'] ?>">
+                                <input type="hidden" name="order_source" value="<?= htmlspecialchars($source) ?>">
+                                <?php if ($source === 'buy_now'): ?>
+                                    <input type="hidden" name="product_id" value="<?= htmlspecialchars($product_id) ?>">
+                                    <input type="hidden" name="quantity" value="<?= $quantity ?>">
+                                <?php endif; ?>
+                                <input type="hidden" name="pilih_alamat" value="1">
                                 
-                                <!-- <div class="address-card <?= (isset($_SESSION['alamat_terpilih']) && $_SESSION['alamat_terpilih'] == $alamat['id_pengiriman']) || (!isset($_SESSION['alamat_terpilih']) && $alamat['is_primary']) ? 'selected' : '' ?>" 
-                                     onclick="selectAddress(<?= $alamat['id_pengiriman'] ?>)"> -->
-                                    <input type="radio" name="alamat_id" value="<?= $alamat['id_pengiriman'] ?>"> </div>
-                                         
+                                <div class="address-card <?= (isset($_SESSION['alamat_terpilih']) && $_SESSION['alamat_terpilih'] == $alamat['id_pengiriman']) ? 'selected' : '' ?>" 
+                                     onclick="selectAndSubmit(<?= $alamat['id_pengiriman'] ?>)">
+                                    <h3>
+                                        <?= htmlspecialchars($alamat['label_alamat']) ?>
+                                    </h3>
                                     
-                                    <div class="address-label">
-                                        <?= $alamat['label_alamat'] ?>
-                                        <!-- <?php if($alamat['is_primary']): ?>
-                                            <span class="badge-primary">Utama</span>
-                                        <?php endif; ?> -->
-                                    </div>
-                                    <div class="address-info">
-                                        <p class="address-name"><?= $alamat['nama_penerima'] ?></p>
-                                        <p class="address-phone"><?= $alamat['no_telepon'] ?></p>
-                                        <p class="address-detail">
-                                            <?= $alamat['alamat_lengkap'] . ', ' . $alamat['kecamatan'] . ', ' . $alamat['kota'] . ', ' . $alamat['provinsi'] ?>
-                                        </p>
-                                    </div>
+                                    <p class="address-name"><?= htmlspecialchars($alamat['nama_penerima']) ?></p>
+                                    <p class="address-phone"><?= htmlspecialchars($alamat['no_telepon']) ?></p>
+                                    <p class="address-detail">
+                                        <?= htmlspecialchars($alamat['alamat_lengkap'] . ', ' . $alamat['kecamatan'] . ', ' . $alamat['kota'] . ', ' . $alamat['provinsi']) ?>
+                                    </p>
+                                    
                                     <div class="address-actions" onclick="event.stopPropagation();">
                                         <a href="edit_alamat.php?id=<?= $alamat['id_pengiriman'] ?>" class="btn btn-outline btn-sm">
-                                            <i class="fas fa-edit"></i>
+                                            <i class="fas fa-edit"></i> Ubah
                                         </a>
                                         <a href="hapus_alamat.php?id_pengiriman=<?= $alamat['id_pengiriman'] ?>" 
-                                           class="btn btn-outline btn-sm delete-btn"
+                                           class="btn btn-outline btn-sm btn-danger"
                                            onclick="return confirm('Yakin ingin menghapus alamat ini?')">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="fas fa-trash"></i> Hapus
                                         </a>
                                     </div>
+                                    
+                                    <button type="submit" name="pilih_alamat" class="use-address-btn">
+                                        Gunakan Alamat Ini
+                                    </button>
                                 </div>
-                                        </div>
-                            
-                                
-                                <button type="submit" name="pilih_alamat" class="btn btn-primary" style="margin-bottom: 20px;">
-                                    <i class="fas fa-check"></i> Gunakan Alamat Terpilih
-                                </button>
-                                
                             </form>
-                       
-                            <p>Belum ada alamat tersimpan. Silakan tambah alamat baru.</p>
-                      
-                        
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <div class="empty-state">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <h3>Belum Ada Alamat Tersimpan</h3>
+                                <p>Tambahkan alamat untuk mempermudah proses checkout</p>
+                            </div>
+                        <?php endif; ?>
+                        </div>
                         <button type="button" class="form-toggle" onclick="toggleAddressForm()">
                             <i class="fas fa-plus"></i> Tambah Alamat Baru
                         </button>
-                        </div>
-                        </div>
-                        </div>
+                       
                         <div class="address-form" id="addressForm">
-                            <h4>Tambah Alamat Baru</h4>
-                            <form method="POST">
-                                <div class="form-group">
-                                    <label for="label_alamat" class="form-label">Label Alamat</label>
-                                    <input type="text" name="label_alamat" class="form-control" placeholder="Rumah, Kantor, dll" required>
+                        <form action="prosesT_pengiriman.php" method="POST">
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="label_alamat" class="required">Label Alamat</label>
+                                    <input type="text" id="label_alamat" name="label_alamat" 
+                                           placeholder="Contoh: Rumah, Kantor, Kos" required>
+                                    <div class="field-help">Berikan nama untuk alamat ini agar mudah diingat</div>
                                 </div>
                                 
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="nama_penerima" class="form-label">Nama Penerima</label>
-                                        <input type="text" name="nama_penerima" class="form-control" placeholder="Nama lengkap penerima" required>
+                                        <label for="nama_penerima" class="required">Nama Penerima</label>
+                                        <input type="text" id="nama_penerima" name="nama_penerima" 
+                                               placeholder="Nama lengkap penerima" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="no_telepon" class="form-label">Nomor Telepon</label>
-                                        <input type="tel" name="no_telepon" class="form-control" placeholder="Nomor telepon penerima" required>
+                                        <label for="no_telepon" class="required">Nomor Telepon</label>
+                                        <input type="tel" id="no_telepon" name="no_telepon" 
+                                               placeholder="08xxxxxxxxxx" required>
+                                        <div class="field-help">Nomor yang dapat dihubungi kurir</div>
                                     </div>
                                 </div>
                                 
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="provinsi" class="form-label">Provinsi</label>
-                                        <select name="provinsi" class="form-control" required>
+                                        <label for="provinsi" class="required">Provinsi</label>
+                                        <select id="provinsi" name="provinsi" required>
                                             <option value="">Pilih Provinsi</option>
                                             <option value="DKI Jakarta">DKI Jakarta</option>
                                             <option value="Jawa Barat">Jawa Barat</option>
@@ -350,19 +401,30 @@ $orderData = getOrderData($source, $product_id, $quantity);
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="kota" class="form-label">Kota/Kabupaten</label>
-                                        <input type="text" name="kota" class="form-control" placeholder="Kota/Kabupaten" required>
+                                        <label for="kota" class="required">Kota/Kabupaten</label>
+                                        <select id="kota" name="kota" required>
+                                            <option value="">Pilih Kota/Kabupaten</option>
+                                             <option value="Yogyakarta">D.I. Yogyakarta</option>
+                                        </select>
                                     </div>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label for="kecamatan" class="form-label">Kecamatan</label>
-                                    <input type="text" name="kecamatan" class="form-control" placeholder="Kecamatan" required>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="kecamatan" class="required">Kecamatan</label>
+                                        <select id="kecamatan" name="kecamatan" required>
+                                            <option value="">Pilih Kecamatan</option>
+                                             <option value="Yogyakarta">D.I. Yogyakarta</option>
+                                        </select>
+                                    </div>
+                                 
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label for="alamat_lengkap" class="form-label">Alamat Lengkap</label>
-                                    <textarea name="alamat_lengkap" class="form-control" rows="3" placeholder="Nama jalan, nomor rumah, RT/RW, dll" required></textarea>
+                                <div class="form-group full-width">
+                                    <label for="alamat_lengkap" class="required">Alamat Lengkap</label>
+                                    <textarea id="alamat_lengkap" name="alamat_lengkap" rows="4" 
+                                              placeholder="Nama jalan, nomor rumah, RT/RW, patokan, dll" required></textarea>
+                                    <div class="char-counter"><span id="alamat-count">0</span>/200 karakter</div>
                                 </div>
                                 
                                 <div class="form-check">
@@ -370,20 +432,27 @@ $orderData = getOrderData($source, $product_id, $quantity);
                                     <label for="is_primary" class="form-check-label">Jadikan sebagai alamat utama</label>
                                 </div>
                                 
-                                <div class="form-actions">
-                                    <button type="button" class="btn btn-outline" onclick="toggleAddressForm()">Batal</button>
-                                    <button type="submit" name="tambah_alamat" class="btn btn-primary">
-                                        <i class="fas fa-save"></i> Simpan & Gunakan
-                                    </button>
-                               
-                                </form>
-                                        </div>
-                                        </div>
-                                       
-                                        
+                                <!-- Hidden fields for order data -->
+                                <input type="hidden" name="order_source" value="<?= htmlspecialchars($source) ?>">
+                                <?php if ($source === 'buy_now'): ?>
+                                    <input type="hidden" name="product_id" value="<?= htmlspecialchars($product_id) ?>">
+                                    <input type="hidden" name="quantity" value="<?= $quantity ?>">
+                                <?php endif; ?>
+                            </div>
                             
-                        
-                    
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline" onclick="toggleAddressForm()">
+                                    <i class="fas fa-times"></i> Batal
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submit-btn">
+                                    <i class="fas fa-save"></i> Simpan Alamat
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    </div>
+                
+
                 
                 <div class="order-summary">
                     <h2 class="summary-title">Ringkasan Pesanan</h2>
@@ -392,9 +461,9 @@ $orderData = getOrderData($source, $product_id, $quantity);
                         <div class="summary-items">
                             <?php foreach ($orderData['items'] as $item): ?>
                             <div class="summary-item">
-                                <img src="uploads/<?= $item['foto'] ?>" alt="<?= $item['nama_tanaman'] ?>" class="item-image">
+                                <img src="uploads/<?= htmlspecialchars($item['foto']) ?>" alt="<?= htmlspecialchars($item['nama_tanaman']) ?>" class="item-image">
                                 <div class="item-info">
-                                    <h3><?= $item['nama_tanaman'] ?></h3>
+                                    <h3><?= htmlspecialchars($item['nama_tanaman']) ?></h3>
                                     <p><?= $item['jumlah'] ?> x Rp<?= number_format($item['harga'], 0, ',', '.') ?></p>
                                 </div>
                                 <div class="item-price">Rp<?= number_format($item['subtotal'], 0, ',', '.') ?></div>
@@ -407,28 +476,14 @@ $orderData = getOrderData($source, $product_id, $quantity);
                             <span>Rp<?= number_format($orderData['subtotal'], 0, ',', '.') ?></span>
                         </div>
                         
-                        <div class="summary-row">
-                            <span>Pengiriman</span>
-                            <span>Rp<?= number_format($orderData['shipping'], 0, ',', '.') ?></span>
-                        </div>
-                        
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span>Rp<?= number_format($orderData['total'], 0, ',', '.') ?></span>
+                            <span>Rp<?= number_format($total, 0, ',', '.') ?></span>
                         </div>
                         
-                        <form action="metode_pengiriman.php" method="post">
-                            <input type="hidden" name="order_source" value="<?= $source ?>">
-                            <?php if ($source === 'buy_now'): ?>
-                                <input type="hidden" name="product_id" value="<?= $product_id ?>">
-                                <input type="hidden" name="quantity" value="<?= $quantity ?>">
-                            <?php endif; ?>
-                            
-                            <a href="metode_pengiriman.php" class="checkout-btn" >
-                                   
-                                Lanjutkan ke Pengiriman
-                            </a>
-                        </form>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <p><i class="fas fa-info-circle"></i> Pilih alamat pengiriman terlebih dahulu untuk melanjutkan</p>
+                        </div>
                     <?php else: ?>
                         <div class="empty-order">
                             <p>Tidak ada item dalam pesanan</p>
@@ -489,7 +544,7 @@ $orderData = getOrderData($source, $product_id, $quantity);
     </footer>
 
     <script>
-        function selectAddress(id) {
+        function selectAndSubmit(id) {
             // Remove selected class from all cards
             document.querySelectorAll('.address-card').forEach(card => {
                 card.classList.remove('selected');
@@ -498,8 +553,8 @@ $orderData = getOrderData($source, $product_id, $quantity);
             // Add selected class to clicked card
             event.currentTarget.classList.add('selected');
             
-            // Check the radio button
-            document.querySelector(`input[value="${id}"]`).checked = true;
+            // Submit the form automatically
+            document.getElementById('form_' + id).submit();
         }
         
         function toggleAddressForm() {
@@ -507,12 +562,25 @@ $orderData = getOrderData($source, $product_id, $quantity);
             form.classList.toggle('show');
         }
         
-        // Auto-submit form when address is selected
-        document.querySelectorAll('input[name="alamat_id"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                // Optional: Auto-submit when address is selected
-                // document.getElementById('alamatForm').submit();
-            });
+        // Character counter for alamat_lengkap
+        document.addEventListener('DOMContentLoaded', function() {
+            const alamatTextarea = document.getElementById('alamat_lengkap');
+            const alamatCount = document.getElementById('alamat-count');
+            
+            if (alamatTextarea && alamatCount) {
+                alamatTextarea.addEventListener('input', function() {
+                    alamatCount.textContent = this.value.length;
+                });
+            }
+            
+            // Mark selected address if exists in session
+            <?php if(isset($_SESSION['alamat_terpilih'])): ?>
+            const selectedAddressId = <?= $_SESSION['alamat_terpilih'] ?>;
+            const selectedCard = document.querySelector(`.address-card[data-id="${selectedAddressId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            <?php endif; ?>
         });
     </script>
 </body>

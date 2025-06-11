@@ -1,6 +1,10 @@
 <?php
 session_start();
 include "koneksi.php";
+
+// Query untuk mengambil produk unggulan (misalnya 4 produk terbaru)
+$sql_featured = "SELECT * FROM produk ORDER BY id_produk DESC LIMIT 4";
+$query_featured = mysqli_query($koneksi, $sql_featured);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -15,7 +19,7 @@ include "koneksi.php";
     <header>
         <div class="container">
             <div class="logo">
-                <a href="index.html">
+                <a href="index.php">
                     <img src="images/logo.png" alt="The Secret Garden">
                 </a>
             </div>
@@ -44,12 +48,12 @@ include "koneksi.php";
             <div class="hero-content">
                 <h1>Ubah Ruangan Anda
                     Menjadi Hidup dengan Sentuhan Hijau</h1>
-                <p>Yuk, buat nuansa alam ke dalam hidupmu dan ciptakan ruang  yang kebih hidup dengan
-                    <strong The Secret Garden</strong></p>
-                <div class="search-box">
-                    <input type="text" placeholder="Cari tanaman...">
+                <p>Yuk, buat nuansa alam ke dalam hidupmu dan ciptakan ruang yang lebih hidup dengan
+                    <strong>The Secret Garden</strong></p>
+                <form action="produk.php" method="GET" class="search-box">
+                    <input type="text" name="search" placeholder="Cari tanaman..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
                     <button type="submit"><i class="fas fa-search"></i></button>
-                </div>
+                </form>
             </div>
             <div class="hero-image">
                 <img src="images/2.png" alt="Tanaman Hias">
@@ -63,10 +67,20 @@ include "koneksi.php";
             <p>Tanaman paling populer minggu ini</p>
             
             <div class="product-grid">
+                <?php 
+                $counter = 0;
+                while($produk = mysqli_fetch_assoc($query_featured)) : 
+                    $counter++;
+                ?>
                 <div class="product-card">
+                    <?php if($counter == 1): ?>
                     <div class="product-badge">Best Seller</div>
-                    <img src="images/tulip.jpg" alt="tulip">
-                    <h3>Tulip</h3>
+                    <?php elseif($counter == 3): ?>
+                    <div class="product-badge">Sale</div>
+                    <?php endif; ?>
+                    
+                    <img src="/admin/Admin_WebTanaman/uploads/<?= $produk['foto'] ?>" alt="<?= $produk['nama_tanaman'] ?>">
+                    <h3><a href="detail_produk.php?id_produk=<?= $produk['id_produk'] ?>"><?= $produk['nama_tanaman'] ?></a></h3>
                     <div class="rating">
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
@@ -75,51 +89,9 @@ include "koneksi.php";
                         <i class="fas fa-star-half-alt"></i>
                         <span>(4.5)</span>
                     </div>
-                    <p class="price">Rp 45.000 - Rp. 400.000</p>
+                    <p class="price">Rp <?= number_format($produk['harga'], 0, ',', '.') ?></p>
                 </div>
-                
-                <div class="product-card">
-                    <img src="images/monstera.jpg" alt="monstera">
-                    <h3>Monstera</h3>
-                    <div class="rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="far fa-star"></i>
-                        <span>(4.0)</span>
-                    </div>
-                    <p class="price">Rp 35.000 - Rp. 200.000</p>
-                </div>
-                
-                <div class="product-card">
-                    <div class="product-badge">Sale</div>
-                    <img src="images/calathea pinstripe.jpg" alt="calathea pinstripe">
-                    <h3>Calathea Pinstripe</h3>
-                    <div class="rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <span>(5.0)</span>
-                    </div>
-                    <p class="price"><span class="old-price">Rp 60.000</span> Rp 50.000</p>
-                </div>
-                
-                <div class="product-card">
-                    <img src="images/Anyelir mini.jpg" alt="anyelir mini">
-                    <h3>Anyelir Mini</h3>
-                    <div class="rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="far fa-star"></i>
-                        <span>(4.0)</span>
-                    </div>
-                    <p class="price">Rp 42.000</p>
-                </div>
+                <?php endwhile; ?>
             </div>
             
             <div class="view-all">

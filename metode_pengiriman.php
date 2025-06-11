@@ -56,18 +56,38 @@ function getOrderData($source = 'cart', $product_id = null, $quantity = 1) {
     ];
 }
 
-// Fungsi untuk mendapatkan alamat pengiriman yang dipilih
+// PERBAIKAN: Fungsi untuk mendapatkan alamat pengiriman yang dipilih
 function getSelectedAddress() {
     global $koneksi;
     
-    // Jika ada alamat yang dipilih dari form sebelumnya
+    // Prioritas 1: Jika ada alamat yang dipilih dari form POST
     if (isset($_POST['selected_address_id'])) {
         $address_id = $_POST['selected_address_id'];
         $query = $koneksi->query("SELECT * FROM pengiriman WHERE id_pengiriman='$address_id'");
         return $query->fetch_assoc();
     }
     
-    // Jika tidak ada, ambil alamat default atau yang pertama
+    // Prioritas 2: Jika ada alamat yang tersimpan di session (PERBAIKAN INI YANG KURANG)
+    if (isset($_SESSION['alamat_terpilih'])) {
+        $address_id = $_SESSION['alamat_terpilih'];
+        $query = $koneksi->query("SELECT * FROM pengiriman WHERE id_pengiriman='$address_id'");
+        $result = $query->fetch_assoc();
+        if ($result) {
+            return $result;
+        }
+    }
+    
+    // Prioritas 3: Jika ada alamat dari order_data session
+    if (isset($_SESSION['order_data']['shipping_address_id'])) {
+        $address_id = $_SESSION['order_data']['shipping_address_id'];
+        $query = $koneksi->query("SELECT * FROM pengiriman WHERE id_pengiriman='$address_id'");
+        $result = $query->fetch_assoc();
+        if ($result) {
+            return $result;
+        }
+    }
+    
+    // Prioritas 4: Jika tidak ada, ambil alamat default atau yang pertama
     $query = $koneksi->query("SELECT * FROM pengiriman ORDER BY id_pengiriman DESC LIMIT 1");
     return $query->fetch_assoc();
 }
@@ -96,10 +116,33 @@ function getShippingName($method = 'jne') {
     return isset($shippingNames[$method]) ? $shippingNames[$method] : 'JNE Regular';
 }
 
-// Tentukan sumber data berdasarkan parameter
-$source = isset($_GET['source']) ? $_GET['source'] : (isset($_POST['order_source']) ? $_POST['order_source'] : 'cart');
-$product_id = isset($_GET['id_produk']) ? $_GET['id_produk'] : (isset($_POST['product_id']) ? $_POST['product_id'] : null);
-$quantity = isset($_GET['qty']) ? (int)$_GET['qty'] : (isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1);
+// Tentukan sumber data berdasarkan parameter atau session
+$source = 'cart'; // default
+if (isset($_GET['source'])) {
+    $source = $_GET['source'];
+} elseif (isset($_POST['order_source'])) {
+    $source = $_POST['order_source'];
+} elseif (isset($_SESSION['order_data']['source'])) {
+    $source = $_SESSION['order_data']['source'];
+}
+
+$product_id = null;
+if (isset($_GET['id_produk'])) {
+    $product_id = $_GET['id_produk'];
+} elseif (isset($_POST['product_id'])) {
+    $product_id = $_POST['product_id'];
+} elseif (isset($_SESSION['order_data']['product_id'])) {
+    $product_id = $_SESSION['order_data']['product_id'];
+}
+
+$quantity = 1;
+if (isset($_GET['qty'])) {
+    $quantity = (int)$_GET['qty'];
+} elseif (isset($_POST['quantity'])) {
+    $quantity = (int)$_POST['quantity'];
+} elseif (isset($_SESSION['order_data']['quantity'])) {
+    $quantity = $_SESSION['order_data']['quantity'];
+}
 
 // Ambil data pesanan
 $orderData = getOrderData($source, $product_id, $quantity);
@@ -107,8 +150,16 @@ $orderData = getOrderData($source, $product_id, $quantity);
 // Ambil alamat pengiriman yang dipilih
 $shippingAddress = getSelectedAddress();
 
-// Tentukan metode pengiriman (default atau dari form)
-$selectedShipping = isset($_POST['shipping_method']) ? $_POST['shipping_method'] : 'jne';
+// Tentukan metode pengiriman (default atau dari form/session)
+$selectedShipping = 'jne'; // default
+if (isset($_POST['shipping_method'])) {
+    $selectedShipping = $_POST['shipping_method'];
+} elseif (isset($_SESSION['shipping_method'])) {
+    $selectedShipping = $_SESSION['shipping_method'];
+} elseif (isset($_SESSION['order_data']['shipping_method'])) {
+    $selectedShipping = $_SESSION['order_data']['shipping_method'];
+}
+
 $shippingCost = getShippingCost($selectedShipping);
 $shippingName = getShippingName($selectedShipping);
 
@@ -121,6 +172,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_shipping'])) {
     $shippingCost = getShippingCost($selectedShipping);
     $shippingName = getShippingName($selectedShipping);
     $total = $orderData['subtotal'] + $shippingCost;
+    
+    // Simpan ke session
+    $_SESSION['shipping_method'] = $selectedShipping;
+}
+
+// Debug: Tampilkan informasi session (hapus setelah testing)
+if (isset($_GET['debug'])) {
+    echo "<pre>";
+    echo "Session alamat_terpilih: " . (isset($_SESSION['alamat_terpilih']) ? $_SESSION['alamat_terpilih'] : 'tidak ada') . "\n";
+    echo "Session order_data: ";
+    print_r($_SESSION['order_data'] ?? 'tidak ada');
+    echo "Shipping Address: ";
+    print_r($shippingAddress);
+    echo "</pre>";
 }
 ?>
 
